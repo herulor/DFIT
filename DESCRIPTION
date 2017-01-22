@@ -1,7 +1,7 @@
 Package: DFIT
 Title: Differential Functioning of Items and Tests
 Version: 1.0-4
-Date: 2017-01-22
+Date: 2017-01-23
 Author: Victor H. Cervantes <vhcervantesb@unal.edu.co>
 Maintainer: Victor H. Cervantes <vhcervantesb@unal.edu.co>
 Imports:
