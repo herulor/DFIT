@@ -18,6 +18,6 @@ Description: A set of functions to perform Raju, van der Linden and Fleer's
 License: GPL (>= 2)
 Copyright: Instituto Colombiano para la Evaluacion de la Educacion - ICFES;
     Victor H. Cervantes
-Encoding: utf8
+Encoding: latin1
 NeedsCompilation: no
 RoxygenNote: 5.0.1
