@@ -1,0 +1,30 @@
+DFIT provides a set of functions to calculate the noncompensatory (NCDIF), compensatory (CDIF) and test level (DTF)
+differential functioning indices for items and tests under Raju's (Raju, Van der Linden & Fleer, 1995) DFIT framework.
+It also provides functions for obtaining cut-off points for identifying differential functioning for these indices
+following the Monte Carlo Item Parameter Replication approach proposed by Oshima, Raju & Nanda (2006).
+
+This package also improves upon available DFIT software by allowing the covariance matrices for both focal and reference
+groups to be used. This improves the obtained cut-off points, which result in type I error rates at the nominal level,
+and increased power, when compared to the cut-off points obtained when using only the focal group item parameter
+estimates and their estimate covariances (Cervantes, 2012, 2017). Furthermore, this package includes functions for obtaining
+the asymptotic covariance matrices of item parameter estimates (currently only for dichotomous IRT models) and for
+calculating the DFIT indices base on the focal group distribution as well as ability estimates for a sample from the
+focal population are included; these enable ad hoc and a priori power calculations for given item parameters and sample
+sizes to be possible with this package.
+
+Some additional DIF Statistics for which the IPR approach may be applied are also implemented in the package. They include Raju's
+Area Measures (Raju, 1988) and a generalized Mantel-Haenszel statistic (Roussos, Schnipke & Pashley, 1999).
+
+References
+
+Cervantes, V.H. (2012). On using the Item Parameter Replication (IPR) Approach for Power Calculation of the Noncompensatory Differential Item Functionin (NCDIF) Index. In: C Arce, G Seoane (eds.), V European Congress of Methodology - Book of Abstracts, pp. 206-207. Universidade de Santiago de Compostela, Santiago de Compostela.
+
+Cervantes, V.H. (2017). DFIT: An R Package for Raju's Differential Functioning of Items and Tests Framework. Journal of Statistical Software, 76(5), 1-24. doi:10.18637/jss.v076.i05
+
+Oshima, T.C., Raju, N.S., Nanda, A.O. (2006). A New MEthod for Assessing the Statistical Significance in the Differential Functioning of Items and Tests (DFIT) Framework. Journal of Educational Measurement, 43(1), 1-17. doi:10.1111/j.1745-3984.2006.00001.x
+
+Raju, N.S. (1988). The Area Between Two Item Characteristic Curves. Psychometrika, 53(4), 495-502. doi:10.1007/bf02294403
+
+Raju, N.S., van der Linden, W., Fleer, P.F. (1995). IRT-Based Internal Measures of Differential Functioning of Items and Tests. Applied Psychological Measurement, 19(4), 353-368. doi:10.1177/014662169501900405
+
+Roussos, L., Schnipke, D., Pashley, P. (1999). A Generalized Formula for the Mantel-Haenszel Differential Item Functioning Parameter.Journal of Educational and Behavioral Statistics, 24(3), 292-322. doi:10.3102/10769986024003293

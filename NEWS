@@ -1,0 +1,23 @@
+DFIT 1.0-1
+==========
+
+
+* added functionality to CutoffIpr so that it may calculate the asymptotic variance-covariance matrices without
+* providing them. Also added parameter nullGroup to specify which item parameters should be considered for the item
+* replicates when calculated by the function.
+
+* added logistic parameter to DeltaMhIrt function
+
+* removed use of not exported functions in the demos
+
+DFIT 1.0-2
+==========
+
+* fixed CITATION
+
+DFIT 1.0-3
+==========
+
+* fixed citation to Raju, van der Linden & Fleer's 1995 paper.
+* now imports stats functions that resulted in no visible bindings in more recent versions of R.
+* added citation to JSS paper.

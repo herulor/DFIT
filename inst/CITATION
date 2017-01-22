@@ -1,0 +1,20 @@
+bibentry(bibtype = "Article",
+  title        = "{DFIT}: An {R} Package for Raju's Differential Functioning of Items and Tests Framework",
+  author       = person(given = c("V\\'ictor", "H."),
+                        family = "Cervantes",
+                        email = "vhcervantesb@unal.edu.co"),
+  journal      = "Journal of Statistical Software",
+  year         = "2017",
+  volume       = "76",
+  number       = "5",
+  pages        = "1--24",
+  doi          = "10.18637/jss.v076.i05",
+
+  header       = "To cite DFIT in publications use:",
+  textVersion  =
+  paste("Victor H. Cervantes (2017).",
+        "DFIT: An R Package for Raju's Differential Functioning of Items and Tests Framework.",
+        "Journal of Statistical Software, 76(5), 1-24.",
+        "doi:10.18637/jss.v076.i05")
+)
+
