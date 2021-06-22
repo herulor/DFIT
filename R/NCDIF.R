@@ -340,6 +340,57 @@ CalculateItemDifferences <- function (thetaValue, itemParameters, irtModel = "2p
 
 
 ################################################################################
+# #  Function CheckDiscriminations: Auxiliary function for Caculate Probabilities functions
+################################################################################
+
+#' Identifies items with nonpositive discrimination
+#'
+#' @param itemParameters A vector or column matrix containing the numeric values of item difficulties
+#'
+#' @return message A character string used to signal items with nonpsitive discriminations
+#'
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#'
+CheckDiscriminations <- function (itemParameters) {
+
+  if (any(itemParameters[, 1] <= 0)) {
+    badItems <- which(itemParameters[, 1] <= 0)
+    message <- paste0("Item ", badItems,
+                      " with discrimination ", itemParameters[badItems, 1], "\n")
+  } else {
+    message <- ""
+  }
+  return(message)
+}
+
+################################################################################
+# #  Function CheckGuessing: Auxiliary function for Caculate Probabilities functions
+################################################################################
+
+#' Identifies items with guessing outside [0, 1]
+#'
+#' @param itemParameters A vector or column matrix containing the numeric values of item difficulties
+#'
+#' @return message A character string used to signal items iadmissible guessing parameters
+#'
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#'
+CheckGuessings <- function (itemParameters) {
+
+  if (any((itemParameters[, 3] < 0) | (itemParameters[, 3] > 1))) {
+    badItems <- which((itemParameters[, 3] < 0) | (itemParameters[, 3] > 1))
+    message <- paste0("Item ", badItems,
+                      " with guessing ", itemParameters[badItems, 3], "\n")
+  } else {
+    message <- ""
+  }
+  return(message)
+}
+
+
+
+
+################################################################################
 # #  Function Calculate1plProb: Calculate the item success probability under the 1PL model.
 ################################################################################
 
@@ -410,7 +461,11 @@ Calculate2plProb <- function (thetaValue, itemParameters, logistic = TRUE) {
   }
 
   if (any(itemParameters[, 1] <= 0)) {
-    stop("Discrimination parameters must be in the first column of itemParameters and must be all positive")
+    errorMessage <- paste("Discrimination parameters must be in the first column of itemParameters and must be all positive\n",
+                          "The following items have non positive discrimination:\n",
+                          CheckDiscriminations(itemParameters = itemParameters),
+                          "Note that this error may apply to a value drawn by the IPR algorithm and not the actual parameters.")
+    stop(errorMessage)
   }
 
   probabilities <- matrix(nrow = length(thetaValue), ncol = nrow(itemParameters))
@@ -456,11 +511,19 @@ Calculate3plProb <- function (thetaValue, itemParameters, logistic = TRUE) {
   }
 
   if (any(itemParameters[, 1] <= 0)) {
-    stop("Discrimination parameters must be in the first column of itemParameters and must be all positive")
+    errorMessage <- paste("Discrimination parameters must be in the first column of itemParameters and must be all positive\n",
+                          "The following items have non positive discrimination:\n",
+                          CheckDiscriminations(itemParameters = itemParameters),
+                          "Note that this error may apply to a value drawn by the IPR algorithm and not the actual item parameters.")
+    stop(errorMessage)
   }
 
-  if (any((itemParameters[, 3] < 0) || (itemParameters[, 3] > 1))) {
-    stop("Guessing parameters must be in the third column of itemParameters and must be all in the interval [0, 1]")
+  if (any((itemParameters[, 3] < 0) | (itemParameters[, 3] > 1))) {
+    errorMessage <- paste("Guessing parameters must be in the third column of itemParameters and must be all in the interval [0, 1]\n",
+                          "The following items have inadmissible guessing parameters:\n",
+                          CheckGuessings(itemParameters = itemParameters),
+                          "Note that this error may apply to a value drawn by the IPR algorithm and not the actual item parameters.")
+    stop(errorMessage)
   }
 
   if (is.data.frame(itemParameters)) {
@@ -511,7 +574,11 @@ CalculateGrmExp <- function (thetaValue, itemParameters, logistic = TRUE) {
   }
 
   if (any(itemParameters[, 1] <= 0)) {
-    stop("Discrimination parameters must be in the first column of itemParameters and must be all positive")
+    errorMessage <- paste("Discrimination parameters must be in the first column of itemParameters and must be all positive\n",
+                          "The following items have non positive discrimination:\n",
+                          CheckDiscriminations(itemParameters = itemParameters),
+                          "Note that this error may apply to a value drawn by the IPR algorithm and not the actual item parameters.")
+    stop(errorMessage)
   }
 
   if (is.data.frame(itemParameters)) {
@@ -572,7 +639,11 @@ CalculatePcmExp <- function (thetaValue, itemParameters, logistic = TRUE) {
   }
 
   if (any(itemParameters[, 1] <= 0)) {
-    stop("Discrimination parameters must be in the first column of itemParameters and must be all positive")
+    errorMessage <- paste("Discrimination parameters must be in the first column of itemParameters and must be all positive\n",
+                          "The following items have non positive discrimination:\n",
+                          CheckDiscriminations(itemParameters = itemParameters),
+                          "Note that this error may apply to a value drawn by the IPR algorithm and not the actual item parameters.")
+    stop(errorMessage)
   }
 
   if (is.data.frame(itemParameters)) {
