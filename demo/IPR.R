@@ -61,8 +61,8 @@ cutoff1Pl     <- CutoffIpr(quantiles = 0.95, iprStatistics = raschNcdifIpr)
 
 # # Two parameter logistic model
 #
-isEven          <- ((seq(nrow(dichotomousItemParameters[['focal']])) %% 2) == 1)
-twoPlParameters <- lapply(dichotomousItemParameters, function (x) matrix(x[!isEven, 1:2], ncol = 2))
+isEven          <- ((seq(nrow(dichotomousItemParameters[['focal']])) %% 2) == 0)
+twoPlParameters <- lapply(dichotomousItemParameters, function (x) matrix(x[isEven, 1:2], ncol = 2))
 twoPlParameters <- unique(as.data.frame.list(twoPlParameters))
 twoPlParameters <- list(focal     = as.matrix(twoPlParameters[, grep("focal", names(twoPlParameters))]),
                         reference = as.matrix(twoPlParameters[, grep("reference", names(twoPlParameters))]))
@@ -80,7 +80,7 @@ twoPlRUamIpr  <- IprUam(itemParameterList = twoPlIpr, irtModel = "2pl", logistic
 twoPlMhIpr    <- IprMh(itemParameterList = twoPlIpr, irtModel = "2pl", logistic = TRUE)
 cutoff2Pl     <- CutoffIpr(quantiles = 0.95, itemParameterList = twoPlIpr, irtModel = "2pl", statistic = "uam")
 
-# # Three parameter logistic model 
+# # Three parameter logistic model
 #
 threePlParameters <- dichotomousItemParameters
 isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))

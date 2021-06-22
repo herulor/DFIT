@@ -43,13 +43,26 @@
 #' # # Not run
 #' # #
 #' # # data(dichotomousItemParameters)
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
 #' # # threePlAse <- list()
-#' # # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-#' # #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['reference']],
-#' # #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlIpr <- Ipr(itemParameters = dichotomousItemParameters, itemCovariances = threePlAse,
-#' # #                   nReplicates = 1000)
+#' # # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+#' # #                                     sampleSize = 10000, irtModel = "3pl")
+#' # # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+#' # #                                     sampleSize = 15000, irtModel = "3pl")
+#' # #
+#' # # set.seed(41568)
+#' # # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
@@ -135,13 +148,27 @@ Ipr <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 #' # # Not run
 #' # #
 #' # # data(dichotomousItemParameters)
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
 #' # # threePlAse <- list()
-#' # # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-#' # #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['reference']],
-#' # #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlIpr <- Ipr(itemParameters = dichotomousItemParameters, itemCovariances = threePlAse,
-#' # #                   nReplicates = 1000)
+#' # # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+#' # #                                     sampleSize = 10000, irtModel = "3pl")
+#' # # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+#' # #                                     sampleSize = 15000, irtModel = "3pl")
+#' # #
+#' # # set.seed(41568)
+#' # # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
+#' # #
 #' # # threePlNcdifIpr <- IprNcdif(itemParameterList = threePlIpr, irtModel = '3pl', logistic = TRUE)
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
@@ -192,13 +219,27 @@ IprNcdif <- function (itemParameterList, irtModel = "2pl", focalAbilities = NULL
 #' # # Not run
 #' # #
 #' # # data(dichotomousItemParameters)
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
 #' # # threePlAse <- list()
-#' # # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-#' # #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['reference']],
-#' # #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlIpr <- Ipr(itemParameters = dichotomousItemParameters, itemCovariances = threePlAse,
-#' # #                   nReplicates = 1000)
+#' # # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+#' # #                                     sampleSize = 10000, irtModel = "3pl")
+#' # # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+#' # #                                     sampleSize = 15000, irtModel = "3pl")
+#' # #
+#' # # set.seed(41568)
+#' # # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
+#' # #
 #' # # threePlUamIpr <- IprUam(itemParameterList = threePlIpr, irtModel = '3pl', logistic = TRUE)
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
@@ -245,13 +286,27 @@ IprUam <- function (itemParameterList, irtModel = "2pl", subdivisions = 5000, lo
 #' # # Not run
 #' # #
 #' # # data(dichotomousItemParameters)
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
 #' # # threePlAse <- list()
-#' # # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-#' # #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['reference']],
-#' # #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlIpr <- Ipr(itemParameters = dichotomousItemParameters, itemCovariances = threePlAse,
-#' # #                   nReplicates = 1000)
+#' # # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+#' # #                                     sampleSize = 10000, irtModel = "3pl")
+#' # # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+#' # #                                     sampleSize = 15000, irtModel = "3pl")
+#' # #
+#' # # set.seed(41568)
+#' # # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
+#' # #
 #' # # threePlSamIpr <- IprSam(itemParameterList = threePlIpr, irtModel = '3pl', logistic = TRUE)
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
@@ -305,13 +360,27 @@ IprSam <- function (itemParameterList, irtModel = "2pl", subdivisions = 5000, lo
 #' # # Not run
 #' # #
 #' # # data(dichotomousItemParameters)
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
 #' # # threePlAse <- list()
-#' # # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-#' # #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['reference']],
-#' # #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlIpr <- Ipr(itemParameters = dichotomousItemParameters, itemCovariances = threePlAse,
-#' # #                   nReplicates = 1000)
+#' # # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+#' # #                                     sampleSize = 10000, irtModel = "3pl")
+#' # # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+#' # #                                     sampleSize = 15000, irtModel = "3pl")
+#' # #
+#' # # set.seed(41568)
+#' # # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
+#' # #
 #' # # threePlMhIpr <- IprMh(itemParameterList = threePlIpr, irtModel = '3pl', logistic = TRUE)
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
@@ -392,12 +461,27 @@ IprMh <- function (itemParameterList, irtModel = "2pl", focalDistribution = "nor
 #' # # Not run
 #' # #
 #' # # data(dichotomousItemParameters)
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
 #' # # threePlAse <- list()
-#' # # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-#' # #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-#' # #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlIprCutoff <- CutoffIpr(itemParameters = dichotomousItemParameters,
+#' # # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+#' # #                                     sampleSize = 10000, irtModel = "3pl")
+#' # # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+#' # #                                     sampleSize = 15000, irtModel = "3pl")
+#' # #
+#' # # set.seed(41568)
+#' # #
+#' # # threePlIprCutoff <- CutoffIpr(itemParameters = threePlParameters,
 #' # #                               itemCovariances = threePlAse, nullGroup = 'focal',
 #' # #                               nReplicates = 1000, statistic = 'ncdif', irtModel = '3pl')
 #'
@@ -423,8 +507,8 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
           nullParameters[['focal']] <- nullParameters[['reference']]
         } else {
           stop('nullGroup must be either NULL, "focal", or "reference"')
-        } 
-      } 
+        }
+      }
       if (is.character(itemCovariances) && itemCovariances == 'asymptotic') {
         itemCovariances <- list()
         itemCovariances[['focal']] <- AseIrt(itemParameters = nullParameters[['focal']],
@@ -439,7 +523,7 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
                                                  sampleSize = referenceSampleSize,
                                                  irtModel = irtModel, logistic = logistic,
                                                  subdivisions = subdivisions)
-      } 
+      }
       itemParameterList <- Ipr(itemParameters = nullParameters, itemCovariances = itemCovariances,
                                nReplicates = nReplicates)
 
@@ -501,7 +585,7 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
 # # Function Bound3PlIpr: Takes item parameters frp, Ipr and forces guessing to lie between 0 and 1
 ################################################################################
 
-#' Takes item parameters frp, Ipr and forces guessing to lie between 0 and 1
+#' Takes item parameters from Ipr and forces guessing to lie between 0 and 1
 #' @description Makes all simulated guessing values from a 3PL model that are outside the [0, 1] interval to be 0 or 1.
 #'
 #' @param itemParameterList     A list where each element is a list containing "focal" and "reference" item Parameters from a 3PL model. Item parameters are assumed to be on the same scale. Item parameters for each group should be a matrix with nrow equal to the number of items
@@ -514,13 +598,26 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
 #' # # Not run
 #' # #
 #' # # data(dichotomousItemParameters)
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
 #' # # threePlAse <- list()
-#' # # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-#' # #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['reference']],
-#' # #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-#' # # threePlIpr <- Ipr(itemParameters = dichotomousItemParameters, itemCovariances = threePlAse,
-#' # #                   nReplicates = 1000)
+#' # # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+#' # #                                     sampleSize = 10000, irtModel = "3pl")
+#' # # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+#' # #                                     sampleSize = 15000, irtModel = "3pl")
+#' # #
+#' # # set.seed(41568)
+#' # # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
 #' # # threePlIpr <- Bound3PlIpr(threePlIpr)
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>

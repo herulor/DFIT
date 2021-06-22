@@ -43,7 +43,20 @@
 #' @examples
 #'
 #' data(dichotomousItemParameters)
-#' threePlNcdif <- Ncdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
+#'
+#' threePlParameters <- dichotomousItemParameters
+#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#'
+#' threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#'
+#' threePlNcdif <- Ncdif(itemParameters = threePlParameters, irtModel = '3pl',
 #'                       focalAbilities = NULL, focalDistribution = "norm",
 #'                       subdivisions = 5000, logistic = TRUE)
 #'
@@ -115,8 +128,21 @@ Ncdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, foca
 #' @examples
 #'
 #' # # Not run
-#'
+#' # #
 #' # # data(dichotomousItemParameters)
+#' # #
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
 #' # # threePlCdif <- Cdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
 #' # #                     focalAbilities = NULL, focalDistribution = "norm",
 #' # #                     subdivisions = 5000, logistic = TRUE)
@@ -210,9 +236,22 @@ Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focal
 #' @examples
 #'
 #' # # Not run
-#'
+#' # #
 #' # # data(dichotomousItemParameters)
-#' # # threePlCdif <- Cdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
+#' # #
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
+#' # # threePlCdif <- Cdif(itemParameters = threePlParameters, irtModel = '3pl',
 #' # #                     focalAbilities = NULL, focalDistribution = "norm",
 #' # #                     subdivisions = 5000, logistic = TRUE)
 #' # # threePlDtf  <- Dtf(cdif = threePlCdif)
@@ -612,13 +651,26 @@ if (getRversion() >= "2.15.1") utils::globalVariables(c("icc", "expected"))
 #' @examples
 #'
 #' data(dichotomousItemParameters)
-#' # # Non Uniform - != guess DIF item close to focal distribution
-#' PlotNcdif(iiItem = 46, itemParameters = dichotomousItemParameters, irtModel = "3pl",
-#'           plotDensity = FALSE, main = "Item 46 Non uniform and different guessing DIF. 3PL")
 #'
-#' # # Non Uniform - != guess DIF item far from focal distribution
-#' PlotNcdif(iiItem = 38, itemParameters = dichotomousItemParameters, irtModel = "3pl",
-#'           plotDensity = FALSE, main = "Item 38 Non uniform and different guessing DIF. 3PL")
+#' threePlParameters <- dichotomousItemParameters
+#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#'
+#' threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#'
+#' # # Non Uniform - != guess DIF item
+#' PlotNcdif(iiItem = 22, itemParameters = threePlParameters, irtModel = "3pl",
+#'           plotDensity = FALSE, main = "Item 22 Non uniform and different guessing DIF. 3PL")
+#'
+#' # # Uniform - != guess DIF item
+#' PlotNcdif(iiItem = 15, itemParameters = threePlParameters, irtModel = "3pl",
+#'           plotDensity = FALSE, main = "Item 15 Uniform and different guessing DIF. 3PL")
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
