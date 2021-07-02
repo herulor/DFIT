@@ -7,7 +7,7 @@
 #' differential functioning indices for items and tests under Raju's (Raju, et al. 1995) DFIT framework.
 #' It also provides functions for obtaining cut-off points for identifying differential functioning for these indices
 #' following the Monte Carlo Item Parameter Replication approach proposed by Oshima et al. (2006).
-#' 
+#'
 #' This package also improves upon available DFIT software by allowing the covariance matrices for both focal and reference
 #' groups to be used. This improves the obtained cut-off points, which result in type I error rates at the nominal level,
 #' and increased power, when compared to the cut-off points obtained when using only the focal group item parameter
@@ -16,7 +16,7 @@
 #' calculating the DFIT indices base on the focal group distribution as well as ability estimates for a sample from the
 #' focal population are included; these enable ad hoc and a priori power calculations for given item parameters and sample
 #' sizes to be possible with this package.
-#' 
+#'
 #' @references de Ayala, R. J., (2009). The theory and practice of item response theory. New York: The Guildford Press
 #' @references Cervantes, V. H. (2012). On using the Item Parameter Replication (IPR) approach for power calculation of the noncompensatory differential item functioning (NCDIF) index (pp. 206-207). Proceedings of the V European Congress of Methodology. Santiago de Compostela, Spain: Universidade de Santiago de Compostela.
 #' @references Cervantes, V. H. (2017). DFIT: An R Package for Raju's Differential Functioning of Items and Tests Framework. Journal of Statistical Software, 76(5), 1-24. doi:10.18637/jss.v076.i05
@@ -31,7 +31,7 @@
 #' @references Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
 #' @references Wright, K. (2011). Improvements for Differential Funtioning of Items and Tests (DFIT): Investigating the addition of reporting an effect size measure and power (Unpublished doctoral dissertation). Georgia State University, USA.
 #'
-#' @import simex mvtnorm ggplot2
+#' @import simex mvtnorm ggplot2 mirt msm
 #' @name DFIT
 #' @docType package
 NULL

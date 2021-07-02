@@ -15,6 +15,7 @@
 # #   20120414: Creation
 # #   20140424: Documentation adjusted to work with roxygen2. References
 # #   added to documentation
+# #   20210622: Examples adjusted
 ################################################################################
 
 

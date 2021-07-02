@@ -4,9 +4,16 @@
 \alias{Dtf}
 \title{Calculates DTF index for a set of items with given item parameters of focal and reference groups.}
 \usage{
-Dtf(cdif = NULL, itemParameters = NULL, irtModel = "2pl",
-  focalAbilities = NULL, focalDistribution = "norm", subdivisions = 5000,
-  logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1))
+Dtf(
+  cdif = NULL,
+  itemParameters = NULL,
+  irtModel = "2pl",
+  focalAbilities = NULL,
+  focalDistribution = "norm",
+  subdivisions = 5000,
+  logistic = TRUE,
+  focalDistrExtra = list(mean = 0, sd = 1)
+)
 }
 \arguments{
 \item{cdif}{A numeric vector of CDIF values for the test items. If NULL it is calculated using itemParameters and the other arguments.}
@@ -34,18 +41,30 @@ Calculates DTF index for a set of items with given item parameters of focal and 
 \examples{
 
 # # Not run
-
+# #
 # # data(dichotomousItemParameters)
-# # threePlCdif <- Cdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
+# #
+# # threePlParameters <- dichotomousItemParameters
+# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+# #
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+# # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+# # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+# # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+# # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+# #
+# # threePlCdif <- Cdif(itemParameters = threePlParameters, irtModel = '3pl',
 # #                     focalAbilities = NULL, focalDistribution = "norm",
 # #                     subdivisions = 5000, logistic = TRUE)
 # # threePlDtf  <- Dtf(cdif = threePlCdif)
 
 }
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
-}
 \references{
 Raju, N. S., van der Linden, W. J., & Fleer, P. F. (1995). IRT-based internal measures of differential functioning of items and tests. Applied Psychological Measurement, 19, 353--368. doi:10.1177/014662169501900405
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

@@ -4,9 +4,15 @@
 \alias{Cdif}
 \title{Calculates CDIF index for an item with given item parameters of focal and reference groups.}
 \usage{
-Cdif(itemParameters, irtModel = "2pl", focalAbilities = NULL,
-  focalDistribution = "norm", subdivisions = 5000, logistic = TRUE,
-  focalDistrExtra = list(mean = 0, sd = 1))
+Cdif(
+  itemParameters,
+  irtModel = "2pl",
+  focalAbilities = NULL,
+  focalDistribution = "norm",
+  subdivisions = 5000,
+  logistic = TRUE,
+  focalDistrExtra = list(mean = 0, sd = 1)
+)
 }
 \arguments{
 \item{itemParameters}{A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should me a matrix with nrow equal to the number of items.}
@@ -32,17 +38,29 @@ Calculates CDIF index for an item with given item parameters of focal and refere
 \examples{
 
 # # Not run
-
+# #
 # # data(dichotomousItemParameters)
+# #
+# # threePlParameters <- dichotomousItemParameters
+# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+# #
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+# # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+# # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+# # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+# # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+# #
 # # threePlCdif <- Cdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
 # #                     focalAbilities = NULL, focalDistribution = "norm",
 # #                     subdivisions = 5000, logistic = TRUE)
 
 }
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
-}
 \references{
 Raju, N. S., van der Linden, W. J., & Fleer, P. F. (1995). IRT-based internal measures of differential functioning of items and tests. Applied Psychological Measurement, 19, 353--368. doi:10.1177/014662169501900405
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

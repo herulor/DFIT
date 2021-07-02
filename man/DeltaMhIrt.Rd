@@ -20,18 +20,30 @@ Obtains the ETS Delta measure for Mantel-Haneszel DIF statistic effect size.
 \examples{
 
 data(dichotomousItemParameters)
-threePlMh <- IrtMh(itemParameters = dichotomousItemParameters,  irtModel = "3pl",
-                   focalDistribution = "norm",
-                   referenceDistribution = "norm", focalDistrExtra = list(mean = 0, sd = 1),
+threePlParameters <- dichotomousItemParameters
+isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+
+threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+
+threePlMh <- IrtMh(itemParameters = threePlParameters,  irtModel = "3pl",
+                   focalDistribution = "norm", referenceDistribution = "norm",
+                   focalDistrExtra = list(mean = 0, sd = 1),
                    referenceDistrExtra = list(mean = 0, sd = 1), groupRatio = 1,
                    logistic = FALSE)
+
 delta3pl <- DeltaMhIrt(threePlMh)
 
-}
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
 }
 \references{
 Holland, P.W., and Thayer, D.T. (1988). Differential Item Performance and the Mantel-Haenszel Procedure. In H. Wainer and H.I. Braun (Eds.), Test Validity. Hillsdale, NJ: Erlbaum.
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

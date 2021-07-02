@@ -5,14 +5,28 @@
 \title{Plot the item characteristic (expected score) curve for focal and reference groups for the iiItem along with a
   representation of the focal group density.}
 \usage{
-PlotNcdif(iiItem, itemParameters, irtModel = "2pl", logistic = TRUE,
-  plotDensity = FALSE, focalAbilities = NULL, focalDistribution = "norm",
-  focalDistrExtra = list(mean = 0, sd = 1), from = -5, to = 5,
-  thetaInt = 0.01, colour = TRUE, highColour = "blue", main = "",
-  xlab = "Ability", ylab = "Probability", iccText = "Group ICCs",
+PlotNcdif(
+  iiItem,
+  itemParameters,
+  irtModel = "2pl",
+  logistic = TRUE,
+  plotDensity = FALSE,
+  focalAbilities = NULL,
+  focalDistribution = "norm",
+  focalDistrExtra = list(mean = 0, sd = 1),
+  from = -5,
+  to = 5,
+  thetaInt = 0.01,
+  colour = TRUE,
+  highColour = "blue",
+  main = "",
+  xlab = "Ability",
+  ylab = "Probability",
+  iccText = "Group ICCs",
   focalIccText = "Focal group ICC",
   referenceIccText = "Reference group ICC",
-  focalDensityText = "Focal group density")
+  focalDensityText = "Focal group density"
+)
 }
 \arguments{
 \item{iiItem}{Item (row) number for the item in each of the itemParameter matrices to plot.}
@@ -65,16 +79,28 @@ Plot the item characteristic (expected score) curve for focal and reference grou
 \examples{
 
 data(dichotomousItemParameters)
-# # Non Uniform - != guess DIF item close to focal distribution
-PlotNcdif(iiItem = 46, itemParameters = dichotomousItemParameters, irtModel = "3pl",
-          plotDensity = FALSE, main = "Item 46 Non uniform and different guessing DIF. 3PL")
 
-# # Non Uniform - != guess DIF item far from focal distribution
-PlotNcdif(iiItem = 38, itemParameters = dichotomousItemParameters, irtModel = "3pl",
-          plotDensity = FALSE, main = "Item 38 Non uniform and different guessing DIF. 3PL")
+threePlParameters <- dichotomousItemParameters
+isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+
+threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+
+# # Non Uniform - != guess DIF item
+PlotNcdif(iiItem = 22, itemParameters = threePlParameters, irtModel = "3pl",
+          plotDensity = FALSE, main = "Item 22 Non uniform and different guessing DIF. 3PL")
+
+# # Uniform - != guess DIF item
+PlotNcdif(iiItem = 15, itemParameters = threePlParameters, irtModel = "3pl",
+          plotDensity = FALSE, main = "Item 15 Uniform and different guessing DIF. 3PL")
 
 }
 \author{
 Victor H. Cervantes <vhcervantesb at unal.edu.co>
 }
-

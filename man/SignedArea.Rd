@@ -4,8 +4,12 @@
 \alias{SignedArea}
 \title{Calculates Raju's Signed Area Measure index for an item with given item parameters of focal and reference groups.}
 \usage{
-SignedArea(itemParameters, irtModel = "2pl", subdivisions = 5000,
-  logistic = TRUE)
+SignedArea(
+  itemParameters,
+  irtModel = "2pl",
+  subdivisions = 5000,
+  logistic = TRUE
+)
 }
 \arguments{
 \item{itemParameters}{A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should me a matrix with nrow equal to the number of items.}
@@ -25,16 +29,28 @@ Calculates Raju's Signed Area Measure index for an item with given item paramete
 \examples{
 
 data(dichotomousItemParameters)
-sam3pl <- SignedArea(itemParameters = dichotomousItemParameters, irtModel = "3pl",
+
+threePlParameters <- dichotomousItemParameters
+isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+
+threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+
+sam3pl <- SignedArea(itemParameters = threePlParameters, irtModel = "3pl",
                      subdivisions = 5000, logistic = TRUE)
 
-}
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
 }
 \references{
 Cohen, A., Kim, S-H and Baker , F. (1993). Detection of differential item functioning in the Graded Response Moodel. Applied psychological measurement, 17(4), 335-350. doi:10.1177/014662169301700402
 
 Raju, N. (1988). The area between two item characteristic cureves. Psychometricka, 53(4), 495--502. doi:10.1007/bf02294403
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

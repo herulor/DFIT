@@ -4,10 +4,17 @@
 \alias{IprMh}
 \title{Mantel Haenszel for Item parameter replication}
 \usage{
-IprMh(itemParameterList, irtModel = "2pl", focalDistribution = "norm",
-  focalDistrExtra = list(mean = 0, sd = 1), referenceDistribution = "norm",
-  referenceDistrExtra = list(mean = 0, sd = 1), groupRatio = 1,
-  subdivisions = 5000, logistic = TRUE)
+IprMh(
+  itemParameterList,
+  irtModel = "2pl",
+  focalDistribution = "norm",
+  focalDistrExtra = list(mean = 0, sd = 1),
+  referenceDistribution = "norm",
+  referenceDistrExtra = list(mean = 0, sd = 1),
+  groupRatio = 1,
+  subdivisions = 5000,
+  logistic = TRUE
+)
 }
 \arguments{
 \item{itemParameterList}{A list where each element is a list containing "focal" and "reference" item Parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should be a matrix with nrow equal to the number of items}
@@ -40,22 +47,35 @@ Calculates the Mantel-Haenszel theoretical parameter under IRT assumptions on a 
 # # Not run
 # #
 # # data(dichotomousItemParameters)
+# # threePlParameters <- dichotomousItemParameters
+# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+# #
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+# # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+# # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+# # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+# # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+# #
 # # threePlAse <- list()
-# # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-# #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-# # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['reference']],
-# #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-# # threePlIpr <- Ipr(itemParameters = dichotomousItemParameters, itemCovariances = threePlAse,
-# #                   nReplicates = 1000)
+# # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+# #                                     sampleSize = 10000, irtModel = "3pl")
+# # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+# #                                     sampleSize = 15000, irtModel = "3pl")
+# #
+# # set.seed(41568)
+# # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
+# #
 # # threePlMhIpr <- IprMh(itemParameterList = threePlIpr, irtModel = '3pl', logistic = TRUE)
 
-}
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
 }
 \references{
 Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
 
 Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

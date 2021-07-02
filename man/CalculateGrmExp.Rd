@@ -19,12 +19,11 @@ expectedScore A numeric matrix with the expected score on each thetaValue for ea
 \description{
 Calculates the expected item score under the GRM model.
 }
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
-}
 \references{
 de Ayala, R. J., (2009). The theory and practice of item response theory. New York: The Guildford Press
 
 Oshima, T. & Morris, S. (2008). Raju's Differential Functioning of Items and Tests (DFIT). Educational Measurement: Issues and Practice, 27(3), 43--50. doi:10.1111/j.1745-3992.2008.00127.x
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

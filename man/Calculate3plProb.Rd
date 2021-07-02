@@ -19,10 +19,9 @@ probabilities A numeric matrix with the probabilities on each thetaValue for eac
 \description{
 Calculates the item success probability under the 3PL model.
 }
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
-}
 \references{
 de Ayala, R. J., (2009). The theory and practice of item response theory. New York: The Guildford Press
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

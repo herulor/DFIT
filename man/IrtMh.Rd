@@ -4,10 +4,17 @@
 \alias{IrtMh}
 \title{Calculates the Mantel-Haenszel theoretical parameter when a dichotomous IRT model holds}
 \usage{
-IrtMh(itemParameters, irtModel = "2pl", focalDistribution = "norm",
-  referenceDistribution = "norm", focalDistrExtra = list(mean = 0, sd = 1),
-  referenceDistrExtra = list(mean = 0, sd = 1), groupRatio = 1,
-  logistic = TRUE, subdivisions = 5000)
+IrtMh(
+  itemParameters,
+  irtModel = "2pl",
+  focalDistribution = "norm",
+  referenceDistribution = "norm",
+  focalDistrExtra = list(mean = 0, sd = 1),
+  referenceDistrExtra = list(mean = 0, sd = 1),
+  groupRatio = 1,
+  logistic = TRUE,
+  subdivisions = 5000
+)
 }
 \arguments{
 \item{itemParameters}{A list containing the "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale.}
@@ -37,17 +44,28 @@ Calculates the Mantel-Haenszel theoretical parameter when a dichotomous IRT mode
 \examples{
 
 data(dichotomousItemParameters)
-threePlMh <- IrtMh(itemParameters = dichotomousItemParameters,  irtModel = "3pl",
+threePlParameters <- dichotomousItemParameters
+isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+
+threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+
+threePlMh <- IrtMh(itemParameters = threePlParameters,  irtModel = "3pl",
                    focalDistribution = "norm", referenceDistribution = "norm",
                    focalDistrExtra = list(mean = 0, sd = 1),
                    referenceDistrExtra = list(mean = 0, sd = 1), groupRatio = 1,
                    logistic = FALSE)
 
 }
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
-}
 \references{
 Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

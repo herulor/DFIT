@@ -4,13 +4,27 @@
 \alias{CutoffIpr}
 \title{Cut-off points for Ipr generated estimates}
 \usage{
-CutoffIpr(iprStatistics = NULL, quantiles, statistic = "ncdif",
-  itemParameterList = NULL, irtModel = "2pl", focalAbilities = NULL,
-  focalDistribution = "norm", focalDistrExtra = list(mean = 0, sd = 1),
-  referenceDistribution = "norm", referenceDistrExtra = list(mean = 0, sd =
-  1), groupRatio = 1, subdivisions = 5000, logistic = TRUE,
-  itemParameters = NULL, itemCovariances = NULL, nullGroup = NULL,
-  focalSampleSize = NULL, referenceSampleSize = NULL, nReplicates = 5000)
+CutoffIpr(
+  iprStatistics = NULL,
+  quantiles,
+  statistic = "ncdif",
+  itemParameterList = NULL,
+  irtModel = "2pl",
+  focalAbilities = NULL,
+  focalDistribution = "norm",
+  focalDistrExtra = list(mean = 0, sd = 1),
+  referenceDistribution = "norm",
+  referenceDistrExtra = list(mean = 0, sd = 1),
+  groupRatio = 1,
+  subdivisions = 5000,
+  logistic = TRUE,
+  itemParameters = NULL,
+  itemCovariances = NULL,
+  nullGroup = NULL,
+  focalSampleSize = NULL,
+  referenceSampleSize = NULL,
+  nReplicates = 5000
+)
 }
 \arguments{
 \item{iprStatistics}{A numeric matrix with the statistics obtained for the simulated IPR item parameters or a list containing all the elements of the output of this function. If not NULL they will be used for calculating the cut-off points.}
@@ -69,18 +83,30 @@ by Cervantes (2012).
 # # Not run
 # #
 # # data(dichotomousItemParameters)
+# # threePlParameters <- dichotomousItemParameters
+# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+# #
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+# # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+# # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+# # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+# # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+# #
 # # threePlAse <- list()
-# # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-# #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-# # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-# #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-# # threePlIprCutoff <- CutoffIpr(itemParameters = dichotomousItemParameters,
+# # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+# #                                     sampleSize = 10000, irtModel = "3pl")
+# # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+# #                                     sampleSize = 15000, irtModel = "3pl")
+# #
+# # set.seed(41568)
+# #
+# # threePlIprCutoff <- CutoffIpr(itemParameters = threePlParameters,
 # #                               itemCovariances = threePlAse, nullGroup = 'focal',
 # #                               nReplicates = 1000, statistic = 'ncdif', irtModel = '3pl')
 
-}
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
 }
 \references{
 Cervantes, V. H. (2012). On using the Item Parameter Replication (IPR) approach for power calculation of the noncompensatory differential item functioning (NCDIF) index (pp. 206-207). Proceedings of the V European Congress of Methodology. Santiago de Compostela, Spain: Universidade de Santiago de Compostela.
@@ -93,4 +119,6 @@ Raju, N. (1988). The area between two item characteristic cureves. Psychometrick
 
 Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

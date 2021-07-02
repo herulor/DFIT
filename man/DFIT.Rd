@@ -3,7 +3,6 @@
 \docType{package}
 \name{DFIT}
 \alias{DFIT}
-\alias{DFIT-package}
 \title{Differential Functioning of Items and Tests framework}
 \description{
 \code{DFIT} provides functions for calculating the differential item and test functioning
@@ -51,4 +50,3 @@ Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Ma
 
 Wright, K. (2011). Improvements for Differential Funtioning of Items and Tests (DFIT): Investigating the addition of reporting an effect size measure and power (Unpublished doctoral dissertation). Georgia State University, USA.
 }
-

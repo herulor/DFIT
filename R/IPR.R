@@ -1,6 +1,5 @@
 ################################################################################
 # # IPR.R
-# # R Versions: 2.15.0
 # #
 # # Author(s): Victor H. Cervantes
 # #
@@ -15,6 +14,7 @@
 # # File history:
 # #   20120425: Creation
 # #   20140421: Documentation adjusted to work with roxygen2
+# #   20210622: Examples adjusted
 ################################################################################
 
 
@@ -28,16 +28,12 @@
 #' @description Generates a sample of item parameters assuming multivariate normality of estimates
 #'
 #' @param itemParameters  A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should me a matrix with nrow equal to the number of items.
-#' @param itemCovariances A list containing "focal" and "reference" lists of matrices of covariance for item estimates.
+#' @param itemCovariances A list containing "focal" and "reference" matrices of covariance for item estimates. Each (focal and reference) may be either a list of covariance matrices for each item or a single matrix of covariance of all parameters.
 #' @param nReplicates     A numeric value indicating the number of replications to perform
 #'
 #' @return itemParameters A list with item parameters for focal and reference groups
 #'
 #' @references Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
-#'
-#' @import simex mvtnorm
-#'
-#' @export
 #'
 #' @examples
 #' # # Not run
@@ -68,8 +64,8 @@
 #'
 Ipr <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 
-#  require(simex)
-#  require(mvtnorm)
+  #  require(simex)
+  #  require(mvtnorm)
 
   # # Data check
   if (nrow(itemParameters[["focal"]]) == nrow(itemParameters[["reference"]])) {
@@ -92,16 +88,30 @@ Ipr <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 
   # # IPR for each group
   itemPars <- as.numeric(t(itemParameters[["focal"]]))
-  itemCovs <- simex::diag.block(itemCovariances[["focal"]])
 
-  itemParameterFocalIpr <- mvtnorm::rmvnorm(n = nReplicates, mean = itemPars, sigma = itemCovs, method = "chol")
+  if (length(itemCovariances[["focal"]]) == nrow(itemParameters[["focal"]])) {
+    #  itemCovs <- simex::diag.block(itemCovariances[["focal"]])
+    itemCovs <- diag.block(itemCovariances[["focal"]])
+  } else {
+    itemCovs <- itemCovariances[["focal"]]
+  }
+
+  #  itemParameterFocalIpr <- mvtnorm::rmvnorm(n = nReplicates, mean = itemPars, sigma = itemCovs, method = "chol")
+  itemParameterFocalIpr <- rmvnorm(n = nReplicates, mean = itemPars, sigma = itemCovs, method = "chol")
   itemParameterFocalIpr <- tapply(itemParameterFocalIpr , row(itemParameterFocalIpr),
                                   function (x) matrix(x, nrow = nItem, byrow = TRUE))
 
   itemPars <- as.numeric(t(itemParameters[["reference"]]))
-  itemCovs <- simex::diag.block(itemCovariances[["reference"]])
 
-  itemParameterReferenceIpr <- mvtnorm::rmvnorm(n = nReplicates, mean = itemPars, sigma = itemCovs, method = "chol")
+  if (length(itemCovariances[["reference"]]) == nrow(itemParameters[["reference"]])) {
+    #  itemCovs <- simex::diag.block(itemCovariances[["reference"]])
+    itemCovs <- diag.block(itemCovariances[["reference"]])
+  } else {
+    itemCovs <- itemCovariances[["reference"]]
+  }
+
+  #  itemParameterReferenceIpr <- mvtnorm::rmvnorm(n = nReplicates, mean = itemPars, sigma = itemCovs, method = "chol")
+  itemParameterReferenceIpr <- rmvnorm(n = nReplicates, mean = itemPars, sigma = itemCovs, method = "chol")
   itemParameterReferenceIpr <- tapply(itemParameterReferenceIpr, row(itemParameterReferenceIpr),
                                       function (x) matrix(x, nrow = nItem, byrow = TRUE))
 
@@ -530,6 +540,10 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
       if (irtModel == "3pl") {
         itemParameterList <- Bound3PlIpr(itemParameterList)
       }
+
+      if (irtModel == "4pl") {
+        itemParameterList <- Bound4PlIpr(itemParameterList)
+      }
     }
 
     if (statistic == 'ncdif') {
@@ -557,7 +571,7 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
 
   if (is.list(iprStatistics)) {
     if (!all(names(iprStatistics) %in% c("itemParameters", "itemCovariances", "itemParameterList", "iprStatistics",
-                                        "statistic", "quantiles"))) {
+                                         "statistic", "quantiles"))) {
       stop("'iprStatistics' is a list, but does not contain all elements of 'CutoffIpr' output")
     }
     iprStatistics$iprStatistics <-  apply(iprStatistics$iprStatistics, 1, quantile, quantiles)
@@ -582,7 +596,7 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
 
 
 ################################################################################
-# # Function Bound3PlIpr: Takes item parameters frp, Ipr and forces guessing to lie between 0 and 1
+# # Function Bound3PlIpr: Takes item parameters from Ipr and forces guessing to lie between 0 and 1
 ################################################################################
 
 #' Takes item parameters from Ipr and forces guessing to lie between 0 and 1
@@ -625,12 +639,18 @@ Bound3PlIpr <- function (itemParameterList) {
 
   Change2Zero <- function (x) {
     isBelow <- which(x[, 3] < 0)
+    if (length(isBelow) > 0) {
+      warning(paste("Guessing for items", isBelow, "was truncated at 0"))
+    }
     x[isBelow, 3] <- 0
     return(x)
   }
 
   Change2One <- function (x) {
     isAbove <- which(x[, 3] > 1)
+    if (length(isAbove) > 1) {
+      warning(paste("Guessing for items", isAbove, "was truncated at 1"))
+    }
     x[isAbove, 3] <- 1
     return(x)
   }
@@ -646,6 +666,97 @@ Bound3PlIpr <- function (itemParameterList) {
 
   itemParameterList <- lapply(itemParameterList,
                               function (x) lapply(x, Change2One))
+
+  return(itemParameterList)
+}
+
+
+
+################################################################################
+# # Function Bound4PlIpr: Takes item parameters from Ipr and forces guessing to lie between 0 and 1
+################################################################################
+
+#' Takes item parameters from Ipr and forces guessing to lie between 0 and 1
+#' @description Makes all simulated guessing values from a 3PL model that are outside the [0, 1] interval to be 0 or 1.
+#'
+#' @param itemParameterList     A list where each element is a list containing "focal" and "reference" item Parameters from a 3PL model. Item parameters are assumed to be on the same scale. Item parameters for each group should be a matrix with nrow equal to the number of items
+#'
+#' @return itemParameterList     A list where each element is a list containing "focal" and "reference" item Parameters where guessing parameters outside the [0, 1] interval are changed by 0 and 1.
+#'
+#' @export
+#'
+#' @examples
+#' # # Not run
+#' # #
+#' # # data(dichotomousItemParameters)
+#' # # threePlParameters <- dichotomousItemParameters
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # #
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' # # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' # # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' # # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' # # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#' # #
+#' # # threePlAse <- list()
+#' # # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+#' # #                                     sampleSize = 10000, irtModel = "3pl")
+#' # # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+#' # #                                     sampleSize = 15000, irtModel = "3pl")
+#' # #
+#' # # set.seed(41568)
+#' # # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
+#' # # threePlIpr <- Bound3PlIpr(threePlIpr)
+#'
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+Bound4PlIpr <- function (itemParameterList) {
+
+  Change2Zero <- function (x) {
+    isBelow <- which(x[, 3] < 0)
+    if (length(isBelow) > 0) {
+      warning(paste("Guessing for items", isBelow, "was truncated at 0"))
+    }
+    x[isBelow, 3] <- 0
+
+    isBelow <- which(x[, 4] < 0)
+    if (length(isBelow) > 0) {
+      warning(paste("Upper asymptote for items", isBelow, "was truncated at 0"))
+    }
+    x[isBelow, 4] <- 0
+    return(x)
+  }
+
+  Change2One <- function (x) {
+    isAbove <- which(x[, 3] > 1)
+    if (length(isAbove) > 1) {
+      warning(paste("Guessing for items", isAbove, "was truncated at 1"))
+    }
+    x[isAbove, 3] <- 1
+
+    isAbove <- which(x[, 4] > 1)
+    if (length(isAbove) > 1) {
+      warning(paste("Upper asymptote for items", isAbove, "was truncated at 1"))
+    }
+    x[isAbove, 4] <- 1
+    return(x)
+  }
+
+  nCol <- sapply(itemParameterList, function (x) lapply(x, ncol))
+
+  if (!all(nCol == 4)) {
+    stop('Not all item parameter sets have four columns. They might not come from a 4PL model')
+  }
+
+  itemParameterList <- lapply(itemParameterList,
+                              function (x) lapply(x, Change2Zero))
+
+  itemParameterList <- lapply(itemParameterList,
+                              function (x) lapply(x, Change2One))
+
+  itemParameterList <-
 
   return(itemParameterList)
 }

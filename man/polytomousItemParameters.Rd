@@ -4,7 +4,9 @@
 \name{polytomousItemParameters}
 \alias{polytomousItemParameters}
 \title{Sets of focal and reference item parameters from Raju et al. (2009)}
-\format{a list with 'focal' and 'reference' elements. Each is a \code{matrix} 1 row per item by 5 columns: item discrimination, four item step parameters.}
+\format{
+a list with 'focal' and 'reference' elements. Each is a \code{matrix} 1 row per item by 5 columns: item discrimination, four item step parameters.
+}
 \source{
 This data set contains the item parameters based on those found in Raju et al. (2009).
 }
@@ -19,4 +21,3 @@ polytomous DFIT framework. Applied psychological measurement, 33(2), 133--147.
 \references{
 Raju, N., Fortmann-Johnson, K., Kim, W., Morris, S., Nering, M. & Oshima, T. (2009). The item parameter replication method for detecting differential functioning in the polytomous DFIT framework. Applied psychological measurement, 33(2), 133--147. doi: 10.1177/01466216083319514
 }
-

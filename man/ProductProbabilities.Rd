@@ -24,4 +24,3 @@ Calculates the product of item response probabilities for dichotomous IRT models
 \author{
 Victor H. Cervantes <vhcervantesb at unal.edu.co>
 }
-

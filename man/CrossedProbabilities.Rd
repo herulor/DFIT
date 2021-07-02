@@ -21,10 +21,9 @@ out A list containing the crossed products for the 'num' the numerator, 'den' th
 \description{
 Calculates the crossed probabilities associated with the numerator and denominator of the odds-ratio under dichotomous IRT models
 }
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
-}
 \references{
 Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

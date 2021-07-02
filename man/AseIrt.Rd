@@ -4,9 +4,15 @@
 \alias{AseIrt}
 \title{Calculates the asymptotic covariance matrices for item parameters according with the IRT model.}
 \usage{
-AseIrt(itemParameters, distribution = "norm",
-  distributionParameters = list(mean = 0, sd = 1), logistic = TRUE,
-  sampleSize = 1, irtModel = "3pl", subdivisions = 5000)
+AseIrt(
+  itemParameters,
+  distribution = "norm",
+  distributionParameters = list(mean = 0, sd = 1),
+  logistic = TRUE,
+  sampleSize = 1,
+  irtModel = "3pl",
+  subdivisions = 5000
+)
 }
 \arguments{
 \item{itemParameters}{A matrix or vector containing the item difficulties.}
@@ -33,17 +39,28 @@ Calculates the asymptotic covariance matrices for item parameters according with
 # # Not run
 # #
 # # data(dichotomousItemParameters)
+# # threePlParameters <- dichotomousItemParameters
+# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+# #
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+# # threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+# # threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+# # threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+# # threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+# # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+# # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+# #
 # # threePlAse <- list()
-# # threePlAse[['focal']] <- AseIrt(itemParameters = dichotomousItemParameters[['focal']],
-# #                                 logistic = TRUE, sampleSize = 500, irtModel = '3pl')
-# # threePlAse[['reference']] <- AseIrt(itemParameters = dichotomousItemParameters[['reference']],
-# #                                     logistic = TRUE, sampleSize = 500, irtModel = '3pl')
+# # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
+# #                                     sampleSize = 10000, irtModel = "3pl")
+# # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
+# #                                     sampleSize = 15000, irtModel = "3pl")
 
-}
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
 }
 \references{
 Li, Y. & Lissitz, R. (2004). Applications of the analytically derived standard errors of Item Response Theory item parameter estimates. Journal of educational measurement, 41(2), 85--117. doi:10.1111/j.1745-3984.2004.tb01109.x
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

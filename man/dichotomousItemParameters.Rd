@@ -4,7 +4,9 @@
 \name{dichotomousItemParameters}
 \alias{dichotomousItemParameters}
 \title{Sets of focal and reference item parameters from Wright (2011).}
-\format{a list with 'focal' and 'reference' elements. Each is a \code{matrix} 1 row per item by 3 columns: item discrimination, difficulty and guessing parameters.}
+\format{
+a list with 'focal' and 'reference' elements. Each is a \code{matrix} 1 row per item by 3 columns: item discrimination, difficulty and guessing parameters.
+}
 \source{
 This data set contains the item parameters based on those found in Wright, K. (2011).
 }
@@ -19,4 +21,3 @@ Unpublished doctoral dissertation). Georgia State University, USA.
 \references{
 Wright, K. (2011). Improvements for Differential Funtioning of Items and Tests (DFIT): Investigating the addition of reporting an effect size measure and power (Unpublished doctoral dissertation). Georgia State University, USA.
 }
-

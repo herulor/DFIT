@@ -4,9 +4,14 @@
 \alias{Ase1pl}
 \title{Calculates the asymptotic variance for difficulty parameter estimates under the 1pl model}
 \usage{
-Ase1pl(itemParameters, distribution = "norm",
-  distributionParameters = list(mean = 0, sd = 1), logistic = TRUE,
-  sampleSize = 1, subdivisions = 5000)
+Ase1pl(
+  itemParameters,
+  distribution = "norm",
+  distributionParameters = list(mean = 0, sd = 1),
+  logistic = TRUE,
+  sampleSize = 1,
+  subdivisions = 5000
+)
 }
 \arguments{
 \item{itemParameters}{A matrix or vector containing the item difficulties.}
@@ -27,10 +32,9 @@ ase A list containing the asymptotic variances for each item
 \description{
 Calculates the asymptotic variance for difficulty parameter estimates under the 1pl model
 }
-\author{
-Victor H. Cervantes <vhcervantesb at unal.edu.co>
-}
 \references{
 Li, Y. & Lissitz, R. (2004). Applications of the analytically derived standard errors of Item Response Theory item parameter estimates. Journal of educational measurement, 41(2), 85--117. doi:10.1111/j.1745-3984.2004.tb01109.x
 }
-
+\author{
+Victor H. Cervantes <vhcervantesb at unal.edu.co>
+}

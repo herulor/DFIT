@@ -4,8 +4,12 @@
 \alias{CalculateItemDifferences}
 \title{Calculates the differences between two item option characteristic curves for all options (minus one).}
 \usage{
-CalculateItemDifferences(thetaValue, itemParameters, irtModel = "2pl",
-  logistic = TRUE)
+CalculateItemDifferences(
+  thetaValue,
+  itemParameters,
+  irtModel = "2pl",
+  logistic = TRUE
+)
 }
 \arguments{
 \item{thetaValue}{A numeric value or array for the theta (ability) value(s) for which the difference will be calculated}
@@ -25,4 +29,3 @@ Calculates the differences between two item option characteristic curves for all
 \author{
 Victor H. Cervantes <vhcervantesb at unal.edu.co>
 }
-

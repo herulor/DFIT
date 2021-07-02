@@ -17,6 +17,7 @@
 # #   added to documentation
 # #   20140518: Updated PlotNcdif for latest ggplot2 compability
 # #   20140518: Changed ... option for indices functions
+# #   20210622: Examples adjusted
 ################################################################################
 
 
@@ -314,6 +315,7 @@ CalculateItemDifferences <- function (thetaValue, itemParameters, irtModel = "2p
                           "1pl" = Calculate1plProb,
                           "2pl" = Calculate2plProb,
                           "3pl" = Calculate3plProb,
+                          "4pl" = Calculate4plProb,
                           "grm" = CalculateGrmExp,
                           "pcm" = CalculatePcmExp,
                           stop("irtModel not known or not implemented"))
@@ -381,6 +383,32 @@ CheckGuessings <- function (itemParameters) {
     badItems <- which((itemParameters[, 3] < 0) | (itemParameters[, 3] > 1))
     message <- paste0("Item ", badItems,
                       " with guessing ", itemParameters[badItems, 3], "\n")
+  } else {
+    message <- ""
+  }
+  return(message)
+}
+
+
+
+################################################################################
+# #  Function CheckUpper: Auxiliary function for Caculate Probabilities functions
+################################################################################
+
+#' Identifies items with upper asymptote outside [0, 1]
+#'
+#' @param itemParameters A vector or column matrix containing the numeric values of item difficulties
+#'
+#' @return message A character string used to signal items iadmissible guessing parameters
+#'
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#'
+CheckUpper <- function (itemParameters) {
+
+  if (any((itemParameters[, 4] < 0) | (itemParameters[, 4] > 1))) {
+    badItems <- which((itemParameters[, 4] < 0) | (itemParameters[, 4] > 1))
+    message <- paste0("Item ", badItems,
+                      " with upper asymptote ", itemParameters[badItems, 4], "\n")
   } else {
     message <- ""
   }
@@ -541,6 +569,71 @@ Calculate3plProb <- function (thetaValue, itemParameters, logistic = TRUE) {
   return(probabilities)
 }
 
+
+
+
+################################################################################
+# #  Function Calculate4plProb: Calculate the item success probability under the 4PL model.
+################################################################################
+
+#' Calculates the item success probability under the 4PL model.
+#'
+#' @param thetaValue     A numeric value or array for the theta (ability) value(s) where the difference will be calculated
+#' @param itemParameters A matrix containing the numeric values of item discriminations on the first column, item difficulties on the second, item guessing parameters on the third, and item upper asymptote on the fourth
+#' @param logistic       A logical value stating if the IRT model will use the logistic or the normal metric.
+#'
+#' @return probabilities A numeric matrix with the probabilities on each thetaValue for each item.
+#'
+#' @references de Ayala, R. J., (2009). The theory and practice of item response theory. New York: The Guildford Press
+#'
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#'
+Calculate4plProb <- function (thetaValue, itemParameters, logistic = TRUE) {
+
+  if (logistic) {
+    kD <- 1
+  } else {
+    kD <- 1.702
+  }
+
+  if (any(itemParameters[, 1] <= 0)) {
+    errorMessage <- paste("Discrimination parameters must be in the first column of itemParameters and must be all positive\n",
+                          "The following items have non positive discrimination:\n",
+                          CheckDiscriminations(itemParameters = itemParameters),
+                          "Note that this error may apply to a value drawn by the IPR algorithm and not the actual item parameters.")
+    stop(errorMessage)
+  }
+
+  if (any((itemParameters[, 3] < 0) | (itemParameters[, 3] > 1))) {
+    errorMessage <- paste("Guessing parameters must be in the third column of itemParameters and must be all in the interval [0, 1]\n",
+                          "The following items have inadmissible guessing parameters:\n",
+                          CheckGuessings(itemParameters = itemParameters),
+                          "Note that this error may apply to a value drawn by the IPR algorithm and not the actual item parameters.")
+    stop(errorMessage)
+  }
+
+  if (any((itemParameters[, 4] < 0) | (itemParameters[, 4] > 1))) {
+    errorMessage <- paste("Guessing parameters must be in the third column of itemParameters and must be all in the interval [0, 1]\n",
+                          "The following items have inadmissible guessing parameters:\n",
+                          CheckUpper(itemParameters = itemParameters),
+                          "Note that this error may apply to a value drawn by the IPR algorithm and not the actual item parameters.")
+    stop(errorMessage)
+  }
+
+  if (is.data.frame(itemParameters)) {
+    itemParameters <- as.matrix(itemParameters)
+  }
+
+  probabilities <- matrix(nrow = length(thetaValue), ncol = nrow(itemParameters))
+
+  for (ii in seq(nrow(probabilities))) {
+    probabilities[ii, ] <-  itemParameters[, 3] + ((itemParameters[, 4] - itemParameters[, 3]) * plogis(q = thetaValue[ii],
+                                                                                      location = as.numeric(t(itemParameters[, 2])),
+                                                                                      scale = 1 / (kD * itemParameters[, 1])))
+  }
+
+  return(probabilities)
+}
 
 
 
@@ -760,6 +853,7 @@ PlotNcdif <- function (iiItem, itemParameters, irtModel = "2pl", logistic = TRUE
                           "1pl" = Calculate1plProb,
                           "2pl" = Calculate2plProb,
                           "3pl" = Calculate3plProb,
+                          "4pl" = Calculate4plProb,
                           "grm" = CalculateGrmExp,
                           "pcm" = CalculatePcmExp,
                           stop("irtModel not known or not implemented"))

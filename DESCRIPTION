@@ -1,10 +1,12 @@
 Package: DFIT
 Title: Differential Functioning of Items and Tests
-Version: 1.0-4
-Date: 2017-01-22
+Version: 1.1
+Date: 2021-07-01
 Author: Victor H. Cervantes <vhcervantesb@unal.edu.co>
 Maintainer: Victor H. Cervantes <vhcervantesb@unal.edu.co>
 Imports:
+    msm,
+    mirt,
     simex,
     mvtnorm,
     ggplot2
@@ -16,8 +18,6 @@ Description: A set of functions to perform Raju, van der Linden and Fleer's
     tests cut-off points. They may also be used for a priori and post-hoc power
     calculations (Cervantes, 2017, <doi:10.18637/jss.v076.i05>).
 License: GPL (>= 2)
-Copyright: Instituto Colombiano para la Evaluacion de la Educacion - ICFES;
-    Victor H. Cervantes
 LazyData: true
 NeedsCompilation: no
-RoxygenNote: 5.0.1
+RoxygenNote: 7.1.1
