@@ -92,6 +92,7 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
             ordCoefs               <- t(strMatrix)
             ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
             ordCoefs               <- t(ordCoefs)
@@ -119,6 +120,7 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
             whichReference <- which(mod@Data$groupNames == reference)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[[1]][["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
             ordCoefs               <- t(strMatrix)
             ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
             ordCoefs               <- t(ordCoefs)
@@ -226,6 +228,7 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
             ordCoefs               <- t(strMatrix)
             ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
             ordCoefs               <- t(ordCoefs)
@@ -276,6 +279,7 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
             whichReference <- which(mod@Data$groupNames == reference)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[[1]][["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
             ordCoefs               <- t(strMatrix)
             ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
             ordCoefs               <- t(ordCoefs)
@@ -416,6 +420,7 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
             ordCoefs               <- t(strMatrix)
             ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
             ordCoefs               <- t(ordCoefs)
@@ -473,6 +478,7 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
             whichReference <- which(mod@Data$groupNames == reference)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[[1]][["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
             ordCoefs               <- t(strMatrix)
             ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
             ordCoefs               <- t(ordCoefs)
@@ -617,6 +623,7 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
             ordCoefs               <- t(strMatrix)
             ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
             ordCoefs               <- t(ordCoefs)
@@ -681,6 +688,7 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
             whichReference <- which(mod@Data$groupNames == reference)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[[1]][["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
             ordCoefs               <- t(strMatrix)
             ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
             ordCoefs               <- t(ordCoefs)
@@ -754,3 +762,408 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
     return(output)
 
 }
+
+
+
+
+#' Extract item discrimination and difficulties and estimate covariance estimates for GRM items from a fitted mirt object
+#' for one or two groups
+#'
+#' @param mod       A mirt object containing the fit of unidimensional model.
+#' @param focal     Character. Required if mod is MultipleGroupClass, focal should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.
+#' @param reference Character. Required if mod is MultipleGroupClass, reference should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.
+#'
+#' @return If mod contains any itemtype == "graded", a list with the item parameters and the estimate covariances (if available).
+#' If mod is SingleGroupClass, the list contains the item parameters as a matrix and the covariances as a list.
+#' If mod is MultipleGroupClass, the list contains the item parameters and covariances for the focal and reference groups only.
+#'
+#' @examples
+#' library(mirt)
+#' (mod1 <- mirt(Science, model = 1, itemtype = "graded", SE = TRUE))
+#' (ExtractGRMMirt(mod1))
+#'
+ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
+
+    classMod <- attributes(class(mod))[["package"]]
+
+    if (is.null(classMod) || classMod != "mirt") {
+        stop("mod is not a mirt obect")
+    }
+    if (mod@Model[["model"]] != 1) {
+        stop("mod is not a unidimensional model.")
+    }
+
+    whichItems <- which(mod@Model[["itemtype"]] == "graded")
+
+    if (length(whichItems) == 0) {
+        message("None of the items is itemtype GRM (graded).")
+        return(NULL)
+    }
+
+    if (class(mod) == "SingleGroupClass") {
+        itemPars <- as.matrix(
+            #mirt::coef(mod,
+            coef(mod,
+                 IRTpars = TRUE,
+                 simplify = TRUE)[["items"]][whichItems, ])
+        whichCols <- grep(pattern = "^(a|b)",
+                          x = colnames(itemPars))
+        itemPars <- itemPars[, whichCols]
+
+    } else if (class(mod) == "MultipleGroupClass") {
+        if (is.null(focal) || is.null(reference)) {
+            stop("focal and reference group names are required.")
+        }
+        if (!(focal %in% mod@Data$groupNames)) {
+            stop("focal does not match any group name.")
+        }
+        if (!(reference %in% mod@Data$groupNames)) {
+            stop("reference does not match any group name.")
+        }
+
+        #itemPars <- lapply(mirt::coef(mod,
+        itemPars <- lapply(coef(mod,
+                                IRTpars = TRUE,
+                                simplify = TRUE),
+                           function (x) {
+                               as.matrix(x[["items"]][whichItems, ])
+                           }
+        )
+
+        whichCols <- grep(pattern = "^(a|b)",
+                          x = colnames(itemPars[[1]]))
+        itemPars <- lapply(itemPars,
+                           function (x) x[, whichCols]
+        )
+
+        itemPars <- itemPars[c(focal, reference)]
+        names(itemPars) <- c("focal", "reference")
+    }
+
+    if (mod@Options[["SE"]]) {
+        if (class(mod) == "SingleGroupClass") {
+            #itemCov <- as.list(diag(mirt::vcov(mod))[whichItems])
+
+            vcovMod   <- vcov(mod)
+            namesVcov <- rownames(vcovMod)
+
+            strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
+            ordCoefs               <- t(strMatrix)
+            ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
+            ordCoefs               <- t(ordCoefs)
+
+
+            diffNames <- grep("d[1-9]", x = colnames(ordCoefs), value = TRUE)
+            whichCov <- ordCoefs[whichItems, c("a1", diffNames)]
+            whichDis <- ordCoefs[whichItems, "a1"]
+            whichDif <- ordCoefs[whichItems, diffNames]
+
+            whichCov <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichCov
+                )
+
+            whichDis <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
+                )
+
+            whichDif <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
+                )
+
+            itemCov <- vcov(mod)[whichCov, whichCov]
+
+            transDisc <- paste0("~ x", whichDis)
+            transDiff <- paste0("~ -x", whichDif, "/x", rep(whichDis, each = length(whichDif) / length(whichDis)))
+
+            transGRM <- list()
+            transGRM[whichDis] <- transDisc
+            transGRM[whichDif] <- transDiff
+
+#            itemCov <- msm::deltamethod(g = transGRM,
+            itemCov <- deltamethod(g = lapply(transGRM, as.formula),
+                                        mean = as.numeric(t(itemPars)),
+                                        cov = itemCov,
+                                        ses = FALSE)
+
+        } else if (class(mod) == "MultipleGroupClass") {
+            itemCov <- list()
+
+            vcovMod   <- vcov(mod)
+            namesVcov <- rownames(vcovMod)
+            nVcov     <- nrow(vcovMod)
+
+            nGroups <- length(mod@Data$groupNames)
+            nPars   <- nVcov / nGroups
+            nParsGroup <- as.numeric(gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)[nPars + 1]) - 1
+
+            whichFocal     <- which(mod@Data$groupNames == focal)
+            whichReference <- which(mod@Data$groupNames == reference)
+
+            strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
+            ordCoefs               <- t(strMatrix)
+            ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
+            ordCoefs               <- t(ordCoefs)
+
+
+            diffNames <- grep("d[1-9]", x = colnames(ordCoefs), value = TRUE)
+            whichCov <- ordCoefs[whichItems, c("a1", diffNames)]
+            whichDis <- ordCoefs[whichItems, "a1"]
+            whichDif <- ordCoefs[whichItems, diffNames]
+
+            pickFocal    <- whichCov + (nParsGroup * (whichFocal - 1))
+            pickReferece <- whichCov + (nParsGroup * (whichReference - 1))
+
+            whichDis <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
+                )
+
+            whichDif <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
+                )
+
+            pickFocal <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
+                )
+
+            pickReferece <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
+                )
+
+            itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
+            itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
+
+            itemCov <- vcov(mod)[whichCov, whichCov]
+
+            transDisc <- paste0("~ x", whichDis)
+            transDiff <- paste0("~ -x", whichDif, "/x", rep(whichDis, each = length(whichDif) / length(whichDis)))
+
+            transGRM <- list()
+            transGRM[whichDis] <- transDisc
+            transGRM[whichDif] <- transDiff
+
+#            itemCov[["focal"]] <- msm::deltamethod(g = transGRM,
+            itemCov[["focal"]] <- deltamethod(g = lapply(transGRM, as.formula),
+                                        mean = as.numeric(t(itemPars)),
+                                        cov = itemCov[["focal"]],
+                                        ses = FALSE)
+
+            itemCov[["reference"]] <- deltamethod(g = lapply(transGRM, as.formula),
+                                        mean = as.numeric(t(itemPars)),
+                                        cov = itemCov[["reference"]],
+                                        ses = FALSE)
+
+        }
+    } else {
+        itemCov <- NULL
+    }
+
+    output <- list(itemParameters = itemPars, itemCovariances = itemCov)
+
+    return(output)
+
+}
+
+
+
+#' Extract item discrimination and difficulties and estimate covariance estimates for GPCM items from a fitted mirt object
+#' for one or two groups
+#'
+#' @param mod       A mirt object containing the fit of unidimensional model.
+#' @param focal     Character. Required if mod is MultipleGroupClass, focal should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.
+#' @param reference Character. Required if mod is MultipleGroupClass, reference should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.
+#'
+#' @return If mod contains any itemtype == "gpcm", a list with the item parameters and the estimate covariances (if available).
+#' If mod is SingleGroupClass, the list contains the item parameters as a matrix and the covariances as a list.
+#' If mod is MultipleGroupClass, the list contains the item parameters and covariances for the focal and reference groups only.
+#'
+#' @examples
+#' library(mirt)
+#' (mod1 <- mirt(Science, model = 1, itemtype = "gpcm", SE = TRUE))
+#' (ExtractGPCMMirt(mod1))
+#'
+ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
+
+    classMod <- attributes(class(mod))[["package"]]
+
+    if (is.null(classMod) || classMod != "mirt") {
+        stop("mod is not a mirt obect")
+    }
+    if (mod@Model[["model"]] != 1) {
+        stop("mod is not a unidimensional model.")
+    }
+
+    whichItems <- which(mod@Model[["itemtype"]] == "gpcm")
+
+    if (length(whichItems) == 0) {
+        message("None of the items is itemtype GPCM (gpcm).")
+        return(NULL)
+    }
+
+    if (class(mod) == "SingleGroupClass") {
+        itemPars <- as.matrix(
+            #mirt::coef(mod,
+            coef(mod,
+                 IRTpars = TRUE,
+                 simplify = TRUE)[["items"]][whichItems, ])
+        whichCols <- grep(pattern = "^(a|b)",
+                          x = colnames(itemPars))
+        itemPars <- itemPars[, whichCols]
+
+    } else if (class(mod) == "MultipleGroupClass") {
+        if (is.null(focal) || is.null(reference)) {
+            stop("focal and reference group names are required.")
+        }
+        if (!(focal %in% mod@Data$groupNames)) {
+            stop("focal does not match any group name.")
+        }
+        if (!(reference %in% mod@Data$groupNames)) {
+            stop("reference does not match any group name.")
+        }
+
+        #itemPars <- lapply(mirt::coef(mod,
+        itemPars <- lapply(coef(mod,
+                                IRTpars = TRUE,
+                                simplify = TRUE),
+                           function (x) {
+                               as.matrix(x[["items"]][whichItems, ])
+                           }
+        )
+
+        whichCols <- grep(pattern = "^(a|b)",
+                          x = colnames(itemPars[[1]]))
+        itemPars <- lapply(itemPars,
+                           function (x) x[, whichCols]
+        )
+
+        itemPars <- itemPars[c(focal, reference)]
+        names(itemPars) <- c("focal", "reference")
+    }
+
+    if (mod@Options[["SE"]]) {
+        if (class(mod) == "SingleGroupClass") {
+            #itemCov <- as.list(diag(mirt::vcov(mod))[whichItems])
+
+            vcovMod   <- vcov(mod)
+            namesVcov <- rownames(vcovMod)
+
+            strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
+            ordCoefs               <- t(strMatrix)
+            ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
+            ordCoefs               <- t(ordCoefs)
+
+
+            diffNames <- grep("d[1-9]", x = colnames(ordCoefs), value = TRUE)
+            whichCov <- ordCoefs[whichItems, c("a1", diffNames)]
+            whichDis <- ordCoefs[whichItems, "a1"]
+            whichDif <- ordCoefs[whichItems, diffNames]
+
+            whichCov <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichCov
+                )
+
+            whichDis <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
+                )
+
+            whichDif <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
+                )
+
+            itemCov <- vcov(mod)[whichCov, whichCov]
+
+            transDisc <- paste0("~ x", whichDis)
+            transDiff <- paste0("~ -x", whichDif, "/x", rep(whichDis, each = length(whichDif) / length(whichDis)))
+
+            transGPCM <- list()
+            transGPCM[whichDis] <- transDisc
+            transGPCM[whichDif] <- transDiff
+
+#            itemCov <- msm::deltamethod(g = transGPCM,
+            itemCov <- deltamethod(g = lapply(transGPCM, as.formula),
+                                        mean = as.numeric(t(itemPars)),
+                                        cov = itemCov,
+                                        ses = FALSE)
+
+        } else if (class(mod) == "MultipleGroupClass") {
+            itemCov <- list()
+
+            vcovMod   <- vcov(mod)
+            namesVcov <- rownames(vcovMod)
+            nVcov     <- nrow(vcovMod)
+
+            nGroups <- length(mod@Data$groupNames)
+            nPars   <- nVcov / nGroups
+            nParsGroup <- as.numeric(gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)[nPars + 1]) - 1
+
+            whichFocal     <- which(mod@Data$groupNames == focal)
+            whichReference <- which(mod@Data$groupNames == reference)
+
+            strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
+            strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
+            ordCoefs               <- t(strMatrix)
+            ordCoefs[t(strMatrix)] <- seq(sum(strMatrix))
+            ordCoefs               <- t(ordCoefs)
+
+
+            diffNames <- grep("d[1-9]", x = colnames(ordCoefs), value = TRUE)
+            whichCov <- ordCoefs[whichItems, c("a1", diffNames)]
+            whichDis <- ordCoefs[whichItems, "a1"]
+            whichDif <- ordCoefs[whichItems, diffNames]
+
+            pickFocal    <- whichCov + (nParsGroup * (whichFocal - 1))
+            pickReferece <- whichCov + (nParsGroup * (whichReference - 1))
+
+            whichDis <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
+                )
+
+            whichDif <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
+                )
+
+            pickFocal <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
+                )
+
+            pickReferece <- which(as.numeric(
+                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
+                )
+
+            itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
+            itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
+
+            itemCov <- vcov(mod)[whichCov, whichCov]
+
+            transDisc <- paste0("~ x", whichDis)
+            transDiff <- paste0("~ -x", whichDif, "/x", rep(whichDis, each = length(whichDif) / length(whichDis)))
+
+            transGPCM <- list()
+            transGPCM[whichDis] <- transDisc
+            transGPCM[whichDif] <- transDiff
+
+#            itemCov[["focal"]] <- msm::deltamethod(g = transGPCM,
+            itemCov[["focal"]] <- deltamethod(g = lapply(transGPCM, as.formula),
+                                        mean = as.numeric(t(itemPars)),
+                                        cov = itemCov[["focal"]],
+                                        ses = FALSE)
+
+            itemCov[["reference"]] <- deltamethod(g = lapply(transGPCM, as.formula),
+                                        mean = as.numeric(t(itemPars)),
+                                        cov = itemCov[["reference"]],
+                                        ses = FALSE)
+
+        }
+    } else {
+        itemCov <- NULL
+    }
+
+    output <- list(itemParameters = itemPars, itemCovariances = itemCov)
+
+    return(output)
+
+}
+
+
