@@ -132,7 +132,8 @@ denProbabilities[ii, ] <-  (1L - (itemParameters[["reference"]][, 3] + ((1L - it
 #'
 #' data(dichotomousItemParameters)
 #' threePlParameters <- dichotomousItemParameters
-#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+#'                       (dichotomousItemParameters[['reference']][, 3] == 0))
 #'
 #' threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
 #' threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
@@ -296,7 +297,8 @@ IrtMh <- function (itemParameters, irtModel = "2pl", focalDistribution = "norm",
 #'
 #' data(dichotomousItemParameters)
 #' threePlParameters <- dichotomousItemParameters
-#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+#'                       (dichotomousItemParameters[['reference']][, 3] == 0))
 #'
 #' threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
 #' threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]

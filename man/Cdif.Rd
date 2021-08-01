@@ -42,7 +42,8 @@ Calculates CDIF index for an item with given item parameters of focal and refere
 # # data(dichotomousItemParameters)
 # #
 # # threePlParameters <- dichotomousItemParameters
-# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+# #                       (dichotomousItemParameters[['reference']][, 3] == 0))
 # #
 # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
 # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]

@@ -740,13 +740,13 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
             trans4PL[whichGss] <- transGuss
             trans4PL[whichUps] <- transUpas
 
-#            itemCov[["focal"]] <- msm::deltamethod(g = trans3PL,
-            itemCov[["focal"]] <- deltamethod(g = lapply(trans3PL, as.formula),
+#            itemCov[["focal"]] <- msm::deltamethod(g = trans4PL,
+            itemCov[["focal"]] <- deltamethod(g = lapply(trans4PL, as.formula),
                                         mean = as.numeric(t(itemPars[["focal"]])),
                                         cov = itemCov[["focal"]],
                                         ses = FALSE)
 
-            itemCov[["reference"]] <- deltamethod(g = lapply(trans3PL, as.formula),
+            itemCov[["reference"]] <- deltamethod(g = lapply(trans4PL, as.formula),
                                         mean = as.numeric(t(itemPars[["reference"]])),
                                         cov = itemCov[["reference"]],
                                         ses = FALSE)
@@ -1165,5 +1165,10 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
     return(output)
 
 }
+
+
+
+
+
 
 

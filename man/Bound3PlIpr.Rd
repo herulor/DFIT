@@ -20,7 +20,8 @@ Makes all simulated guessing values from a 3PL model that are outside the [0, 1]
 # #
 # # data(dichotomousItemParameters)
 # # threePlParameters <- dichotomousItemParameters
-# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+# # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+# #                      (dichotomousItemParameters[['reference']][, 3] == 0))
 # #
 # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
 # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
@@ -32,13 +33,18 @@ Makes all simulated guessing values from a 3PL model that are outside the [0, 1]
 # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
 # #
 # # threePlAse <- list()
-# # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]], logistic = TRUE,
-# #                                     sampleSize = 10000, irtModel = "3pl")
-# # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]], logistic = TRUE,
-# #                                     sampleSize = 15000, irtModel = "3pl")
+# # threePlAse[["focal"]]     <- AseIrt(itemParameters = threePlParameters[["focal"]],
+# #                                     logistic = TRUE,
+# #                                     sampleSize = 10000,
+# #                                     irtModel = "3pl")
+# # threePlAse[["reference"]] <- AseIrt(itemParameters = threePlParameters[["reference"]],
+# #                                     logistic = TRUE,
+# #                                     sampleSize = 15000,
+# #                                     irtModel = "3pl")
 # #
 # # set.seed(41568)
-# # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse, nReplicates = 100)
+# # threePlIpr <- Ipr(itemParameters = threePlParameters, itemCovariances = threePlAse,
+# #                   nReplicates = 100)
 # # threePlIpr <- Bound3PlIpr(threePlIpr)
 
 }

@@ -46,7 +46,8 @@
 #' data(dichotomousItemParameters)
 #'
 #' threePlParameters <- dichotomousItemParameters
-#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+#'                       (dichotomousItemParameters[['reference']][, 3] == 0))
 #'
 #' threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
 #' threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
@@ -133,7 +134,8 @@ Ncdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, foca
 #' # # data(dichotomousItemParameters)
 #' # #
 #' # # threePlParameters <- dichotomousItemParameters
-#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+#' # #                       (dichotomousItemParameters[['reference']][, 3] == 0))
 #' # #
 #' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
 #' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
@@ -241,7 +243,8 @@ Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focal
 #' # # data(dichotomousItemParameters)
 #' # #
 #' # # threePlParameters <- dichotomousItemParameters
-#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' # # isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+#' # #                       (dichotomousItemParameters[['reference']][, 3] == 0))
 #' # #
 #' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
 #' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
@@ -817,7 +820,8 @@ if (getRversion() >= "2.15.1") utils::globalVariables(c("icc", "expected"))
 #' data(dichotomousItemParameters)
 #'
 #' threePlParameters <- dichotomousItemParameters
-#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) | (dichotomousItemParameters[['reference']][, 3] == 0))
+#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+#'                       (dichotomousItemParameters[['reference']][, 3] == 0))
 #'
 #' threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
 #' threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
