@@ -1191,7 +1191,10 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 #' @examples
 ExtractMirtPars <- function (mod, focal = NULL, reference = NULL) {
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1cb842be134f105e76dd6e20e5c1b100bb0a4acd
 }
 
 
