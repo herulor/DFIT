@@ -31,7 +31,7 @@
 #' library(mirt)
 #' data <- expand.table(LSAT7)
 #' (mod1 <- mirt(data, model = 1, itemtype = "Rasch", SE = TRUE))
-#' (ExtractRaschMirt(mod1))
+#' (DFIT:::ExtractRaschMirt(mod1))
 #'
 ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
 
@@ -169,7 +169,7 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
 #' library(mirt)
 #' data <- expand.table(LSAT7)
 #' (mod1 <- mirt(data, model = 1, itemtype = "2PL", SE = TRUE))
-#' (Extract2PLMirt(mod1))
+#' (DFIT:::Extract2PLMirt(mod1))
 #'
 Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
@@ -361,7 +361,7 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
 #' library(mirt)
 #' data <- expand.table(LSAT7)
 #' (mod1 <- mirt(data, model = 1, itemtype = "3PL", SE = TRUE))
-#' (Extract3PLMirt(mod1))
+#' (DFIT:::Extract3PLMirt(mod1))
 #'
 Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
@@ -564,7 +564,7 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
 #' library(mirt)
 #' data <- expand.table(LSAT7)
 #' (mod1 <- mirt(data, model = 1, itemtype = "4PL", SE = TRUE))
-#' (Extract4PLMirt(mod1))
+#' (DFIT:::Extract4PLMirt(mod1))
 #'
 Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
@@ -780,7 +780,7 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
 #' @examples
 #' library(mirt)
 #' (mod1 <- mirt(Science, model = 1, itemtype = "graded", SE = TRUE))
-#' (ExtractGRMMirt(mod1))
+#' (DFIT:::ExtractGRMMirt(mod1))
 #'
 ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
 
@@ -981,7 +981,7 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
 #' @examples
 #' library(mirt)
 #' (mod1 <- mirt(Science, model = 1, itemtype = "gpcm", SE = TRUE))
-#' (ExtractGPCMMirt(mod1))
+#' (DFIT:::ExtractGPCMMirt(mod1))
 #'
 ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 
@@ -1167,6 +1167,31 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 }
 
 
+
+
+
+#' Extracts the item parameters from a unidimensional mirt model
+#'
+#' @param mod       A mirt object containing the fit of unidimensional model.
+#' @param focal     Character. Required if mod is MultipleGroupClass, focal should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.
+#' @param reference Character. Required if mod is MultipleGroupClass, reference should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.
+#'
+#' @return If mod contains any itemtype == "gpcm", a list with the item parameters and the estimate covariances (if available).
+#' If mod is SingleGroupClass, the list contains the item parameters as a matrix and the covariances as a list.
+#' If mod is MultipleGroupClass, the list contains the item parameters and covariances for the focal and reference groups only.
+#'
+#' @examples
+#' library(mirt)
+#' (mod1 <- mirt(Science, model = 1, itemtype = c("graded", "graded", "gpcm", "gpcm"), SE = TRUE))
+#' (ExtractMirtPars(mod1))
+#'
+#' @return
+#' @export
+#'
+#' @examples
+ExtractMirtPars <- function (mod, focal = NULL, reference = NULL) {
+
+}
 
 
 

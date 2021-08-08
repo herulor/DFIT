@@ -20,4 +20,5 @@ Description: A set of functions to perform Raju, van der Linden and Fleer's
 License: GPL (>= 2)
 LazyData: true
 NeedsCompilation: no
+Encoding: UTF-8
 RoxygenNote: 7.1.1

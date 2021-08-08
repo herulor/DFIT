@@ -26,6 +26,6 @@ for one or two groups
 \examples{
 library(mirt)
 (mod1 <- mirt(Science, model = 1, itemtype = "graded", SE = TRUE))
-(ExtractGRMMirt(mod1))
+(DFIT:::ExtractGRMMirt(mod1))
 
 }
