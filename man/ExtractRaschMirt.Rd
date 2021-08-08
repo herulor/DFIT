@@ -27,6 +27,6 @@ for one or two groups
 library(mirt)
 data <- expand.table(LSAT7)
 (mod1 <- mirt(data, model = 1, itemtype = "Rasch", SE = TRUE))
-(ExtractRaschMirt(mod1))
+(DFIT:::ExtractRaschMirt(mod1))
 
 }
