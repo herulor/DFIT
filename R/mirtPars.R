@@ -251,12 +251,12 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", whichDif - 1)
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x", whichDif - 1)
 
             trans2PL <- list()
-            trans2PL[whichDis] <- transDisc
-            trans2PL[whichDif] <- transDiff
+            trans2PL[which(whichCov %in% whichDis)] <- transDisc
+            trans2PL[which(whichCov %in% whichDif)] <- transDiff
 
 #            itemCov <- msm::deltamethod(g = trans2PL,
             itemCov <- deltamethod(g = lapply(trans2PL, as.formula),
@@ -312,12 +312,12 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", whichDif - 1)
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x", whichDif - 1)
 
             trans2PL <- list()
-            trans2PL[whichDis] <- transDisc
-            trans2PL[whichDif] <- transDiff
+            trans2PL[which(whichCov %in% whichDis)] <- transDisc
+            trans2PL[which(whichCov %in% whichDif)] <- transDiff
 
 #            itemCov[["focal"]] <- msm::deltamethod(g = trans2PL,
             itemCov[["focal"]] <- deltamethod(g = lapply(trans2PL, as.formula),
@@ -448,14 +448,14 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", whichDif - 1)
-            transGuss <- paste0("~ x", whichGss)
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x", whichDif - 1)
+            transGuss <- paste0("~ x", which(whichCov %in% whichGss))
 
             trans3PL <- list()
-            trans3PL[whichDis] <- transDisc
-            trans3PL[whichDif] <- transDiff
-            trans3PL[whichGss] <- transGuss
+            trans3PL[which(whichCov %in% whichDis)] <- transDisc
+            trans3PL[which(whichCov %in% whichDif)] <- transDiff
+            trans3PL[which(whichCov %in% whichGss)] <- transGuss
 
 #            itemCov <- msm::deltamethod(g = trans3PL,
             itemCov <- deltamethod(g = lapply(trans3PL, as.formula),
@@ -514,14 +514,14 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
             itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
             itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", whichDif - 1)
-            transGuss <- paste0("~ x", whichGss)
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x", whichDif - 1)
+            transGuss <- paste0("~ x", which(whichCov %in% whichGss))
 
             trans3PL <- list()
-            trans3PL[whichDis] <- transDisc
-            trans3PL[whichDif] <- transDiff
-            trans3PL[whichGss] <- transGuss
+            trans3PL[which(whichCov %in% whichDis)] <- transDisc
+            trans3PL[which(whichCov %in% whichDif)] <- transDiff
+            trans3PL[which(whichCov %in% whichGss)] <- transGuss
 
 #            itemCov[["focal"]] <- msm::deltamethod(g = trans3PL,
             itemCov[["focal"]] <- deltamethod(g = lapply(trans3PL, as.formula),
@@ -656,16 +656,16 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", whichDif - 1)
-            transGuss <- paste0("~ x", whichGss)
-            transUpas <- paste0("~ x", whichUps)
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x", whichDif - 1)
+            transGuss <- paste0("~ x", which(whichCov %in% whichGss))
+            transUpas <- paste0("~ x", which(whichCov %in% whichUps))
 
             trans4PL <- list()
-            trans4PL[whichDis] <- transDisc
-            trans4PL[whichDif] <- transDiff
-            trans4PL[whichGss] <- transGuss
-            trans4PL[whichUps] <- transUpas
+            trans4PL[which(whichCov %in% whichDis)] <- transDisc
+            trans4PL[which(whichCov %in% whichDif)] <- transDiff
+            trans4PL[which(whichCov %in% whichGss)] <- transGuss
+            trans4PL[which(whichCov %in% whichUps)] <- transUpas
 
 #            itemCov <- msm::deltamethod(g = trans3PL,
             itemCov <- deltamethod(g = lapply(trans4PL, as.formula),
@@ -729,16 +729,17 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
             itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
             itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", whichDif - 1)
-            transGuss <- paste0("~ x", whichGss)
-            transUpas <- paste0("~ x", whichUps)
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x", whichDif - 1)
+            transGuss <- paste0("~ x", which(whichCov %in% whichGss))
+            transUpas <- paste0("~ x", which(whichCov %in% whichUps))
 
             trans4PL <- list()
-            trans4PL[whichDis] <- transDisc
-            trans4PL[whichDif] <- transDiff
-            trans4PL[whichGss] <- transGuss
-            trans4PL[whichUps] <- transUpas
+            trans4PL[which(whichCov %in% whichDis)] <- transDisc
+            trans4PL[which(whichCov %in% whichDif)] <- transDiff
+            trans4PL[which(whichCov %in% whichGss)] <- transGuss
+            trans4PL[which(whichCov %in% whichUps)] <- transUpas
+
 
 #            itemCov[["focal"]] <- msm::deltamethod(g = trans4PL,
             itemCov[["focal"]] <- deltamethod(g = lapply(trans4PL, as.formula),
@@ -873,12 +874,13 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", rep(whichDis, each = length(whichDif) / length(whichDis)))
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x",
+                                rep(which(whichCov %in% whichDis), each = length(whichDif) / length(whichDis)))
 
             transGRM <- list()
-            transGRM[whichDis] <- transDisc
-            transGRM[whichDif] <- transDiff
+            transGRM[which(whichCov %in% whichDis)] <- transDisc
+            transGRM[which(whichCov %in% whichDif)] <- transDiff
 
 #            itemCov <- msm::deltamethod(g = transGRM,
             itemCov <- deltamethod(g = lapply(transGRM, as.formula),
@@ -936,12 +938,13 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", rep(whichDis, each = length(whichDif) / length(whichDis)))
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x",
+                                rep(which(whichCov %in% whichDis), each = length(whichDif) / length(whichDis)))
 
             transGRM <- list()
-            transGRM[whichDis] <- transDisc
-            transGRM[whichDif] <- transDiff
+            transGRM[which(whichCov %in% whichDis)] <- transDisc
+            transGRM[which(whichCov %in% whichDif)] <- transDiff
 
 #            itemCov[["focal"]] <- msm::deltamethod(g = transGRM,
             itemCov[["focal"]] <- deltamethod(g = lapply(transGRM, as.formula),
@@ -1074,12 +1077,13 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", rep(whichDis, each = length(whichDif) / length(whichDis)))
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x",
+                                rep(which(whichCov %in% whichDis), each = length(whichDif) / length(whichDis)))
 
             transGPCM <- list()
-            transGPCM[whichDis] <- transDisc
-            transGPCM[whichDif] <- transDiff
+            transGPCM[which(whichCov %in% whichDis)] <- transDisc
+            transGPCM[which(whichCov %in% whichDif)] <- transDiff
 
 #            itemCov <- msm::deltamethod(g = transGPCM,
             itemCov <- deltamethod(g = lapply(transGPCM, as.formula),
@@ -1137,12 +1141,13 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
-            transDisc <- paste0("~ x", whichDis)
-            transDiff <- paste0("~ -x", whichDif, "/x", rep(whichDis, each = length(whichDif) / length(whichDis)))
+            transDisc <- paste0("~ x", which(whichCov %in% whichDis))
+            transDiff <- paste0("~ -x", which(whichCov %in% whichDif), "/x",
+                                rep(which(whichCov %in% whichDis), each = length(whichDif) / length(whichDis)))
 
             transGPCM <- list()
-            transGPCM[whichDis] <- transDisc
-            transGPCM[whichDif] <- transDiff
+            transGPCM[which(whichCov %in% whichDis)] <- transDisc
+            transGPCM[which(whichCov %in% whichDif)] <- transDiff
 
 #            itemCov[["focal"]] <- msm::deltamethod(g = transGPCM,
             itemCov[["focal"]] <- deltamethod(g = lapply(transGPCM, as.formula),
@@ -1191,10 +1196,26 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 #' @examples
 ExtractMirtPars <- function (mod, focal = NULL, reference = NULL) {
 
-<<<<<<< HEAD
+    modItemTypes <- unique(mod@Model[["itemtype"]])
 
-=======
->>>>>>> 1cb842be134f105e76dd6e20e5c1b100bb0a4acd
+    mirtParameters <- list()
+
+    for (iiType in modItemTypes) {
+
+        ExtractPars <- switch(iiType,
+                            "Rasch"  = ExtractRaschMirt,
+                            "2PL"    = Extract2PLMirt,
+                            "3PL"    = Extract3PLMirt,
+                            "4PL"    = Extract4PLMirt,
+                            "graded" = ExtractGRMMirt,
+                            "gpcm"   = ExtractGPCMMirt,
+                            warning(paste("irtModel ", iiType, " not known or not implemented"))
+        )
+
+        mirtParameters[[iiType]] <- ExtractPars(mod = mod, focal = focal, reference = reference)
+   }
+
+    return(mirtParameters)
 }
 
 
