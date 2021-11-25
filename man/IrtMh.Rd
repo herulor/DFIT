@@ -36,7 +36,7 @@ IrtMh(
 \item{subdivisions}{A numeric value stating the maximum number of subdivisions for adaptive quadrature.}
 }
 \value{
-mh A list containing the asymptotic matrices for each item
+mh                   A numeric vector containing the Mantel-Haenszel statistics for each item
 }
 \description{
 Calculates the Mantel-Haenszel theoretical parameter when a dichotomous IRT model holds

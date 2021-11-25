@@ -124,7 +124,7 @@ denProbabilities[ii, ] <-  (1L - (itemParameters[["reference"]][, 3] + ((1L - it
 #' @param logistic              A logical indicating whether the logistic or the normal metric should be used.
 #' @param subdivisions          A numeric value stating the maximum number of subdivisions for adaptive quadrature.
 #'
-#' @return mh A list containing the asymptotic matrices for each item
+#' @return mh                   A numeric vector containing the Mantel-Haenszel statistics for each item
 #'
 #' @export
 #'
