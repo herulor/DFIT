@@ -31,7 +31,7 @@
 #' @references Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
 #' @references Wright, K. (2011). Improvements for Differential Funtioning of Items and Tests (DFIT): Investigating the addition of reporting an effect size measure and power (Unpublished doctoral dissertation). Georgia State University, USA.
 #'
-#' @import simex mvtnorm ggplot2 mirt msm
+#' @import ggplot2 mirt
 #' @name DFIT
 #' @docType package
 NULL

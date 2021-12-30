@@ -33,6 +33,11 @@
 #'
 #' @return itemParameters A list with item parameters for focal and reference groups
 #'
+#' @export
+#'
+#' @importFrom simex diag.block
+#' @importFrom mvtnorm rmvnorm
+#'
 #' @references Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
 #'
 #' @examples
@@ -497,6 +502,8 @@ IprMh <- function (itemParameterList, irtModel = "2pl", focalDistribution = "nor
 #'
 #' @export
 #'
+#' @importFrom stats quantile
+#'
 #' @examples
 #' # # Not run
 #' # #
@@ -802,8 +809,6 @@ Bound4PlIpr <- function (itemParameterList) {
 
   itemParameterList <- lapply(itemParameterList,
                               function (x) lapply(x, Change2One))
-
-  itemParameterList <-
 
   return(itemParameterList)
 }

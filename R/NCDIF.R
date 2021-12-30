@@ -39,7 +39,9 @@
 #'
 #' @return ncdif Numeric vector with the NCDIF index value for each item.
 #'
-#' @export
+#' @export Ncdif
+#'
+#' @importFrom stats integrate
 #'
 #' @examples
 #'
@@ -811,7 +813,7 @@ if (getRversion() >= "2.15.1") utils::globalVariables(c("icc", "expected"))
 #'
 #' @return plotNCDIF  A ggplot object for the plot
 #'
-#' @import ggplot2
+#' @importFrom stats density
 #'
 #' @export
 #'

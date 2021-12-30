@@ -332,6 +332,8 @@ Ase2pl <- function (itemParameters, distribution = "norm", distributionParameter
 #' @param sampleSize             A value indicating the sample size.
 #' @param subdivisions           A numeric value stating the maximum number of subdivisions for adaptive quadrature.
 #'
+#' @importFrom stats qnorm
+#'
 #' @return ase A list containing the asymptotic matrices for each item
 #'
 #' @references Li, Y. & Lissitz, R. (2004). Applications of the analytically derived standard errors of Item Response Theory item parameter estimates. Journal of educational measurement, 41(2), 85--117. doi:10.1111/j.1745-3984.2004.tb01109.x

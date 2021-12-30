@@ -53,8 +53,7 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (class(mod) == "SingleGroupClass") {
         itemPars <- matrix(
-            #mirt::coef(mod,
-            coef(mod,
+            mirt::coef(mod,
                  IRTpars = TRUE,
                  simplify = TRUE)[["items"]][whichItems, "b"],
             ncol = 1)
@@ -70,8 +69,7 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
             stop("reference does not match any group name.")
         }
 
-        #itemPars <- lapply(mirt::coef(mod,
-        itemPars <- lapply(coef(mod,
+        itemPars <- lapply(mirt::coef(mod,
                                 IRTpars = TRUE,
                                 simplify = TRUE),
                            function (x) {
@@ -86,9 +84,8 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (mod@Options[["SE"]]) {
         if (class(mod) == "SingleGroupClass") {
-            #itemCov <- as.list(diag(mirt::vcov(mod))[whichItems])
 
-            vcovMod   <- vcov(mod)
+            vcovMod   <- mirt::vcov(mod)
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
@@ -191,8 +188,7 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
-            #mirt::coef(mod,
-            coef(mod,
+            mirt::coef(mod,
                  IRTpars = TRUE,
                  simplify = TRUE)[["items"]][whichItems, c("a", "b")])
 
@@ -207,8 +203,7 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
             stop("reference does not match any group name.")
         }
 
-        #itemPars <- lapply(mirt::coef(mod,
-        itemPars <- lapply(coef(mod,
+        itemPars <- lapply(mirt::coef(mod,
                                 IRTpars = TRUE,
                                 simplify = TRUE),
                            function (x) {
@@ -222,9 +217,8 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (mod@Options[["SE"]]) {
         if (class(mod) == "SingleGroupClass") {
-            #itemCov <- as.list(diag(mirt::vcov(mod))[whichItems])
 
-            vcovMod   <- vcov(mod)
+            vcovMod   <- mirt::vcov(mod)
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
@@ -383,8 +377,7 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
-            #mirt::coef(mod,
-            coef(mod,
+            mirt::coef(mod,
                  IRTpars = TRUE,
                  simplify = TRUE)[["items"]][whichItems, c("a", "b", "g")])
 
@@ -399,8 +392,7 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
             stop("reference does not match any group name.")
         }
 
-        #itemPars <- lapply(mirt::coef(mod,
-        itemPars <- lapply(coef(mod,
+        itemPars <- lapply(mirt::coef(mod,
                                 IRTpars = TRUE,
                                 simplify = TRUE),
                            function (x) {
@@ -414,9 +406,8 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (mod@Options[["SE"]]) {
         if (class(mod) == "SingleGroupClass") {
-            #itemCov <- as.list(diag(mirt::vcov(mod))[whichItems])
 
-            vcovMod   <- vcov(mod)
+            vcovMod   <- mirt::vcov(mod)
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
@@ -586,8 +577,7 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
-            #mirt::coef(mod,
-            coef(mod,
+            mirt::coef(mod,
                  IRTpars = TRUE,
                  simplify = TRUE)[["items"]][whichItems, c("a", "b", "g", "u")])
 
@@ -602,8 +592,7 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
             stop("reference does not match any group name.")
         }
 
-        #itemPars <- lapply(mirt::coef(mod,
-        itemPars <- lapply(coef(mod,
+        itemPars <- lapply(mirt::coef(mod,
                                 IRTpars = TRUE,
                                 simplify = TRUE),
                            function (x) {
@@ -617,9 +606,8 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (mod@Options[["SE"]]) {
         if (class(mod) == "SingleGroupClass") {
-            #itemCov <- as.list(diag(mirt::vcov(mod))[whichItems])
 
-            vcovMod   <- vcov(mod)
+            vcovMod   <- mirt::vcov(mod)
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
@@ -803,8 +791,7 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
-            #mirt::coef(mod,
-            coef(mod,
+            mirt::coef(mod,
                  IRTpars = TRUE,
                  simplify = TRUE)[["items"]][whichItems, ])
         whichCols <- grep(pattern = "^(a|b)",
@@ -822,8 +809,7 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
             stop("reference does not match any group name.")
         }
 
-        #itemPars <- lapply(mirt::coef(mod,
-        itemPars <- lapply(coef(mod,
+        itemPars <- lapply(mirt::coef(mod,
                                 IRTpars = TRUE,
                                 simplify = TRUE),
                            function (x) {
@@ -843,9 +829,8 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (mod@Options[["SE"]]) {
         if (class(mod) == "SingleGroupClass") {
-            #itemCov <- as.list(diag(mirt::vcov(mod))[whichItems])
 
-            vcovMod   <- vcov(mod)
+            vcovMod   <- mirt::vcov(mod)
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
@@ -1006,8 +991,7 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
-            #mirt::coef(mod,
-            coef(mod,
+            mirt::coef(mod,
                  IRTpars = TRUE,
                  simplify = TRUE)[["items"]][whichItems, ])
         whichCols <- grep(pattern = "^(a|b)",
@@ -1025,8 +1009,7 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
             stop("reference does not match any group name.")
         }
 
-        #itemPars <- lapply(mirt::coef(mod,
-        itemPars <- lapply(coef(mod,
+        itemPars <- lapply(mirt::coef(mod,
                                 IRTpars = TRUE,
                                 simplify = TRUE),
                            function (x) {
@@ -1046,9 +1029,8 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 
     if (mod@Options[["SE"]]) {
         if (class(mod) == "SingleGroupClass") {
-            #itemCov <- as.list(diag(mirt::vcov(mod))[whichItems])
 
-            vcovMod   <- vcov(mod)
+            vcovMod   <- mirt::vcov(mod)
             namesVcov <- rownames(vcovMod)
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[["items"]])
@@ -1191,9 +1173,12 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 #' (ExtractMirtPars(mod1))
 #'
 #' @return
+#'
 #' @export
 #'
-#' @examples
+#' @importFrom msm deltamethod
+#' @importFrom stats as.formula
+#'
 ExtractMirtPars <- function (mod, focal = NULL, reference = NULL) {
 
     modItemTypes <- unique(mod@Model[["itemtype"]])

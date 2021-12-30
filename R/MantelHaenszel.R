@@ -33,6 +33,8 @@
 #' @param irtModel              A string stating the irtModel used. May be one of "1pl", "2pl", or "3pl".
 #' @param logistic              A logical indicating whether the logistic or the normal metric should be used.
 #'
+#' @importFrom stats plogis
+#'
 #' @return out A list containing the crossed products for the 'num' the numerator, 'den' the denominator for the odds-ratio, and 'or' the odds-ratio
 #'
 #' @references Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
