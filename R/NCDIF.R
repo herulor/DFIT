@@ -1,8 +1,8 @@
 ################################################################################
 # # NCDIF.R
-# # R Versions: 2.14.1
+# # R Versions: 4.3.2
 # #
-# # Author(s): Victor H. Cervantes
+# # Author(s): Victor H. Cervantes, Trung T. Q. Le
 # #
 # # General NCDIF function
 # # Description: Functions for calculating NCDIF
@@ -18,6 +18,9 @@
 # #   20140518: Updated PlotNcdif for latest ggplot2 compability
 # #   20140518: Changed ... option for indices functions
 # #   20210622: Examples adjusted
+# #   20240606: Updated Ncdif, Cdif, and Dtf to take in quadrature points.
+# #   Add functions for differential test functioning indices (Chalmers, Counsell, & Flora, 2016).
+# #   Documentation adjusted.
 ################################################################################
 
 
@@ -29,13 +32,16 @@
 
 #' Calculates NCDIF index for an item with given item parameters of focal and reference groups.
 #'
-#' @param itemParameters    A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should me a matrix with nrow equal to the number of items.
+#' @param itemParameters    A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should be a matrix with nrow equal to the number of items.
 #' @param irtModel          A string stating the irtModel to be used. Should be one of "1pl", "2pl", "3pl", "grm" or "pcm".
-#' @param focalAbilities    If NULL, NCDIF is calculated by numerical integration of focal distribution. If not NULL, it must be a numerical vector containing the abilities for the individuals in the focal group.
+#' @param focalAbilities    If NULL, NCDIF is calculated by numerical integration or fixed quadrature points of focal distribution. If not NULL, it must be a numerical vector containing the abilities for the individuals in the focal group.
 #' @param focalDistribution A string stating the distribution name to be used for integrating. Only used if focalAbilities is NULL.
 #' @param focalDistrExtra   Extra parameters for the focal group distribution function if needed.
-#' @param subdivisions      A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities is NULL.
 #' @param logistic          A logical value stating if the IRT model will use the logistic or the normal metric. Defaults to using the logistic metric by fixing the D constant to 1. If FALSE the constant is set to 1.702 so that the normal metric is used.
+#' @param numIntegrate      A logical value stating if NCDIF is calculated using numerical integration (adaptive quadrature points) or fixed quadrature points. Defaults to using integration.
+#' @param subdivisions      A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities is NULL.
+#' @param quadpts           A numeric value indicating the number of quadrature points for calculating NCDIF. Only used if numIntegrate is FALSE.
+#' @param theta_lim         A list containing the lower and upper limit of the ability to bin over using quadrature points. Only used if numIntegrate is FALSE.
 #'
 #' @return ncdif Numeric vector with the NCDIF index value for each item.
 #'
@@ -60,48 +66,386 @@
 #' threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
 #' threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
 #'
+#' # Using numerical integration (adaptive quadrature points)
 #' threePlNcdif <- Ncdif(itemParameters = threePlParameters, irtModel = '3pl',
 #'                       focalAbilities = NULL, focalDistribution = "norm",
-#'                       subdivisions = 5000, logistic = TRUE)
+#'                       subdivisions = 5000, logistic = TRUE,
+#'                       numIntegrate = TRUE)
+#'
+#' # Using fixed quadrature points
+#' threePlNcdif <- Ncdif(itemParameters = threePlParameters, irtModel = '3pl',
+#'                       focalAbilities = NULL, focalDistribution = "norm",
+#'                       subdivisions = 5000, logistic = TRUE,
+#'                       numIntegrate = FALSE)
 #'
 #' @references Raju, N. S., van der Linden, W. J., & Fleer, P. F. (1995). IRT-based internal measures of differential functioning of items and tests. Applied Psychological Measurement, 19, 353--368. doi:10.1177/014662169501900405
+#' @references Chalmers, R. P., Counsell, A., and Flora, D. B. (2016). It might not make a big DIF: Improved Differential Test Functioning statistics that account for sampling variability. Educational and Psychological Measurement, 76, 114-140. doi:10.1177/0013164415584576
 #'
-#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>, Trung T. Q. Le
 #'
 Ncdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
-                   subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
+                   subdivisions = NULL, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1),
+                   thetaLim = c(-6, 6), quadpts = NULL, numIntegrate = TRUE) {
 
-  NcdifPoint <- function (x, itemParameters, focalDistribution, irtModel, logistic, focalDistrExtra) {
-    itemDifference <- CalculateItemDifferences(thetaValue = x, itemParameters = itemParameters, irtModel = irtModel,
-                                               logistic = logistic)
-    pars <- focalDistrExtra
-    pars$x <- x
-    focalGroupDensity <- do.call(paste("d", focalDistribution, sep = ""), pars)
+    NcdifPoint <- function (x, itemParameters, focalDistribution, irtModel, logistic, focalDistrExtra,
+                            numIntegrate) {
+        itemDifference <- CalculateItemDifferences(thetaValue = x, itemParameters = itemParameters, irtModel = irtModel,
+                                                   logistic = logistic)
+        pars <- focalDistrExtra
+        pars$x <- x
+        focalGroupDensity <- do.call(paste("d", focalDistribution, sep = ""), pars)
 
-    out <- focalGroupDensity * ((itemDifference) ^ 2)
-    return(out)
-  }
+        if (!numIntegrate) {
+            normConst <- sum(focalGroupDensity)
+            focalGroupDensity <- focalGroupDensity / normConst
+        }
 
-  if (is.null(focalAbilities)) {
+        out <- focalGroupDensity * ((itemDifference) ^ 2)
+
+        return(out)
+    }
+
+    if (!is.null(focalAbilities)) {
+        ncdif <- colMeans((CalculateItemDifferences(thetaValue = focalAbilities, itemParameters = itemParameters,
+                                                    irtModel = irtModel, logistic = logistic) ^ 2))
+
+        ncdif <- as.numeric(ncdif)
+
+        return(ncdif)
+    }
+
     nItems <- nrow(itemParameters[["focal"]])
     ncdif  <- numeric(nItems)
 
-    for (ii in 1:nItems) {
-      ncdif[ii] <- integrate(f = NcdifPoint, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                             itemParameters = list(focal     = matrix(itemParameters[["focal"]][ii, ], nrow = 1),
-                                                   reference = matrix(itemParameters[["reference"]][ii, ], nrow = 1)),
-                             focalDistribution = focalDistribution,
-                             focalDistrExtra = focalDistrExtra, irtModel = irtModel,
-                             logistic = logistic)$value
+    if (numIntegrate) {
+        if (is.null(subdivisions)) {
+            subdivisions <- 5000
+        } else {
+            subdivisions <- subdivisions
+        }
+
+        for (ii in 1:nItems) {
+            ncdif[ii] <- integrate(f = NcdifPoint, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                   itemParameters = list(focal     = matrix(itemParameters[["focal"]][ii, ], nrow = 1),
+                                                         reference = matrix(itemParameters[["reference"]][ii, ], nrow = 1)),
+                                   focalDistribution = focalDistribution,
+                                   numIntegrate      = numIntegrate,
+                                   focalDistrExtra   = focalDistrExtra,
+                                   irtModel = irtModel,
+                                   logistic = logistic)$value
+        }
+
+    } else {
+        if (is.null(quadpts)) {
+            quadpts <- 61
+        } else {
+            quadpts <- quadpts
+        }
+
+        thetaValue <- seq(thetaLim[1L], thetaLim[2L], length.out = quadpts)
+
+        for (ii in 1:nItems) {
+            ncdif[ii] <- sum(NcdifPoint(x = thetaValue,
+                                        itemParameters = list(focal     = matrix(itemParameters[["focal"]][ii, ], nrow = 1),
+                                                              reference = matrix(itemParameters[["reference"]][ii, ], nrow = 1)),
+                                        focalDistribution = focalDistribution,
+                                        numIntegrate      = numIntegrate,
+                                        focalDistrExtra   = focalDistrExtra,
+                                        irtModel = irtModel,
+                                        logistic = logistic)
+            )
+        }
     }
-  } else {
-    ncdif <- colMeans((CalculateItemDifferences(thetaValue = focalAbilities, itemParameters = itemParameters,
-                                                irtModel = irtModel, logistic = logistic) ^ 2))
-  }
 
-  ncdif <- as.numeric(ncdif)
+    ncdif <- as.numeric(ncdif)
 
-  return(ncdif)
+    return(ncdif)
+}
+
+
+
+
+
+
+
+
+################################################################################
+# # Function sDTF: Area-based Signed Differential Test Functioning index
+################################################################################
+
+#' Calculates sDTF index for an item with given item parameters of focal and reference groups (Chalmers, Counsell, & Flora, 2016)
+#'
+#' @param itemParameters    A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should be a matrix with nrow equal to the number of items.
+#' @param irtModel          A string stating the irtModel to be used. Should be one of "1pl", "2pl", "3pl", "grm" or "pcm".
+#' @param focalAbilities    If NULL, sDTF is calculated by numerical integration or fixed quadrature points of focal distribution. If not NULL, it must be a numerical vector containing the abilities for the individuals in the focal group.
+#' @param focalDistribution A string stating the distribution name to be used for integrating. Only used if focalAbilities is NULL.
+#' @param focalDistrExtra   Extra parameters for the focal group distribution function if needed.
+#' @param logistic          A logical value stating if the IRT model will use the logistic or the normal metric. Defaults to using the logistic metric by fixing the D constant to 1. If FALSE the constant is set to 1.702 so that the normal metric is used.
+#' @param numIntegrate      A logical value stating if sDTF is calculated using numerical integration (adaptive quadrature points) or fixed quadrature points. Defaults to using integration.
+#' @param subdivisions      A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities is NULL.
+#' @param quadpts           A numeric value indicating the number of quadrature points for calculating sDTF. Only used if numIntegrate is FALSE.
+#' @param theta_lim         A list containing the lower and upper limit of the ability to bin over using quadrature points. Only used if numIntegrate is FALSE.
+#'
+#' @return sDTF Numeric vector with the sDTF index value for each item.
+#'
+#' @export sDTF
+#'
+#' @importFrom stats integrate
+#'
+#' @examples
+#'
+#' data(dichotomousItemParameters)
+#'
+#' threePlParameters <- dichotomousItemParameters
+#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+#'                       (dichotomousItemParameters[['reference']][, 3] == 0))
+#'
+#' threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#'
+#' # Using numerical integration (adaptive quadrature points)
+#' threePlNcdif <- sDTF(itemParameters = threePlParameters, irtModel = '3pl',
+#'                      focalAbilities = NULL, focalDistribution = "norm",
+#'                      subdivisions = 5000, logistic = TRUE,
+#'                      numIntegrate = TRUE)
+#'
+#' # Using fixed quadrature points
+#' threePlNcdif <- sDTF(itemParameters = threePlParameters, irtModel = '3pl',
+#'                      focalAbilities = NULL, focalDistribution = "norm",
+#'                      subdivisions = 5000, logistic = TRUE,
+#'                      numIntegrate = FALSE)
+#'
+#' @references Raju, N. S., van der Linden, W. J., & Fleer, P. F. (1995). IRT-based internal measures of differential functioning of items and tests. Applied Psychological Measurement, 19, 353--368. doi:10.1177/014662169501900405
+#' @references Chalmers, R. P., Counsell, A., and Flora, D. B. (2016). It might not make a big DIF: Improved Differential Test Functioning statistics that account for sampling variability. Educational and Psychological Measurement, 76, 114-140. doi:10.1177/0013164415584576
+#'
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>, Trung T. Q. Le
+#'
+sDTF <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
+                   subdivisions = NULL, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1),
+                   thetaLim = c(-6, 6), quadpts = NULL, numIntegrate = TRUE) {
+
+    sDTFPoint <- function (x, itemParameters, focalDistribution, irtModel, logistic, focalDistrExtra,
+                            numIntegrate) {
+        itemDifference <- CalculateItemDifferences(thetaValue = x, itemParameters = itemParameters, irtModel = irtModel,
+                                                   logistic = logistic)
+        pars <- focalDistrExtra
+        pars$x <- x
+        focalGroupDensity <- do.call(paste("d", focalDistribution, sep = ""), pars)
+
+        if (!numIntegrate) {
+            normConst <- sum(focalGroupDensity)
+            focalGroupDensity <- focalGroupDensity / normConst
+        }
+
+        out <- focalGroupDensity * itemDifference
+
+        return(out)
+    }
+
+    if (!is.null(focalAbilities)) {
+        sDTF <- colMeans((CalculateItemDifferences(thetaValue = focalAbilities, itemParameters = itemParameters,
+                                                    irtModel = irtModel, logistic = logistic)))
+
+        sDTF <- as.numeric(sDTF)
+
+        return(sDTF)
+    }
+
+    nItems <- nrow(itemParameters[["focal"]])
+    sDTF  <- numeric(nItems)
+
+    if (numIntegrate) {
+        if (is.null(subdivisions)) {
+            subdivisions <- 5000
+        } else {
+            subdivisions <- subdivisions
+        }
+
+        for (ii in 1:nItems) {
+            sDTF[ii] <- integrate(f = sDTFPoint, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                  itemParameters = list(focal     = matrix(itemParameters[["focal"]][ii, ], nrow = 1),
+                                                         reference = matrix(itemParameters[["reference"]][ii, ], nrow = 1)),
+                                  focalDistribution = focalDistribution,
+                                  numIntegrate      = numIntegrate,
+                                  focalDistrExtra   = focalDistrExtra,
+                                  irtModel = irtModel,
+                                  logistic = logistic)$value
+        }
+
+    } else {
+        if (is.null(quadpts)) {
+            quadpts <- 61
+        } else {
+            quadpts <- quadpts
+        }
+
+        thetaValue <- seq(thetaLim[1L], thetaLim[2L], length.out = quadpts)
+
+        for (ii in 1:nItems) {
+            sDTF[ii] <- sum(sDTFPoint(x = thetaValue,
+                                      itemParameters = list(focal     = matrix(itemParameters[["focal"]][ii, ], nrow = 1),
+                                                            reference = matrix(itemParameters[["reference"]][ii, ], nrow = 1)),
+                                      focalDistribution = focalDistribution,
+                                      numIntegrate      = numIntegrate,
+                                      focalDistrExtra   = focalDistrExtra,
+                                      irtModel = irtModel,
+                                      logistic = logistic)
+            )
+        }
+    }
+
+    sDTF <- as.numeric(sDTF)
+
+    return(sDTF)
+}
+
+
+
+
+
+
+
+
+################################################################################
+# # Function uDTF: Unsigned Differential Test Functioning index
+################################################################################
+
+#' Calculates uDTF index for an item with given item parameters of focal and reference groups (Chalmers, Counsell, & Flora, 2016)
+#'
+#' @param itemParameters    A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should be a matrix with nrow equal to the number of items.
+#' @param irtModel          A string stating the irtModel to be used. Should be one of "1pl", "2pl", "3pl", "grm" or "pcm".
+#' @param focalAbilities    If NULL, uDTF is calculated by numerical integration (adaptive quadrature) or fixed quadrature points of focal distribution. If not NULL, it must be a numerical vector containing the abilities for the individuals in the focal group.
+#' @param focalDistribution A string stating the distribution name to be used for integrating. Only used if focalAbilities is NULL.
+#' @param focalDistrExtra   Extra parameters for the focal group distribution function if needed.
+#' @param logistic          A logical value stating if the IRT model will use the logistic or the normal metric. Defaults to using the logistic metric by fixing the D constant to 1. If FALSE the constant is set to 1.702 so that the normal metric is used.
+#' @param numIntegrate      A logical value stating if uDTF is calculated using adaptive quadrature or fixed quadrature. Defaults to using adaptive.
+#' @param subdivisions      A numeric value indicating the number of subdivisions for adaptive quadrature. Only used if focalAbilities is NULL.
+#' @param quadpts           A numeric value indicating the number of quadrature points for calculating uDTF. Only used if numIntegrate is FALSE.
+#' @param theta_lim         A list containing the lower and upper limit of the ability to bin over using quadrature points. Only used if numIntegrate is FALSE.
+#'
+#' @return uDTF Numeric vector with the uDTF index value for each item.
+#'
+#' @export uDTF
+#'
+#' @importFrom stats integrate
+#'
+#' @examples
+#'
+#' data(dichotomousItemParameters)
+#'
+#' threePlParameters <- dichotomousItemParameters
+#' isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+#'                       (dichotomousItemParameters[['reference']][, 3] == 0))
+#'
+#' threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+#' threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+#' threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+#' threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+#' threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+#' threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+#' threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+#' threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+#'
+#' # Using numerical integration (adaptive quadrature points)
+#' threePlNcdif <- uDTF(itemParameters = threePlParameters, irtModel = '3pl',
+#'                      focalAbilities = NULL, focalDistribution = "norm",
+#'                      subdivisions = 5000, logistic = TRUE,
+#'                      numIntegrate = TRUE)
+#'
+#' # Using fixed quadrature points
+#' threePlNcdif <- uDTF(itemParameters = threePlParameters, irtModel = '3pl',
+#'                      focalAbilities = NULL, focalDistribution = "norm",
+#'                      subdivisions = 5000, logistic = TRUE,
+#'                      numIntegrate = FALSE)
+#'
+#' @references Raju, N. S., van der Linden, W. J., & Fleer, P. F. (1995). IRT-based internal measures of differential functioning of items and tests. Applied Psychological Measurement, 19, 353--368. doi:10.1177/014662169501900405
+#' @references Chalmers, R. P., Counsell, A., and Flora, D. B. (2016). It might not make a big DIF: Improved Differential Test Functioning statistics that account for sampling variability. Educational and Psychological Measurement, 76, 114-140. doi:10.1177/0013164415584576
+#'
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>, Trung T. Q. Le
+#'
+uDTF <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
+                  subdivisions = NULL, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1),
+                  thetaLim = c(-6, 6), quadpts = NULL, numIntegrate = TRUE) {
+
+    uDTFPoint <- function (x, itemParameters, focalDistribution, irtModel, logistic, focalDistrExtra,
+                           numIntegrate) {
+        itemDifference <- CalculateItemDifferences(thetaValue = x, itemParameters = itemParameters, irtModel = irtModel,
+                                                   logistic = logistic)
+        pars <- focalDistrExtra
+        pars$x <- x
+        focalGroupDensity <- do.call(paste("d", focalDistribution, sep = ""), pars)
+
+        if (!numIntegrate) {
+            normConst <- sum(focalGroupDensity)
+            focalGroupDensity <- focalGroupDensity / normConst
+        }
+
+        out <- focalGroupDensity * abs(itemDifference)
+
+        return(out)
+    }
+
+    if (!is.null(focalAbilities)) {
+        uDTF <- colMeans(abs(CalculateItemDifferences(thetaValue = focalAbilities, itemParameters = itemParameters,
+                                                   irtModel = irtModel, logistic = logistic)))
+
+        uDTF <- as.numeric(uDTF)
+
+        return(uDTF)
+    }
+
+    nItems <- nrow(itemParameters[["focal"]])
+    uDTF  <- numeric(nItems)
+
+    if (numIntegrate) {
+        if (is.null(subdivisions)) {
+            subdivisions <- 5000
+        } else {
+            subdivisions <- subdivisions
+        }
+
+        for (ii in 1:nItems) {
+            uDTF[ii] <- integrate(f = uDTFPoint, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                  itemParameters = list(focal     = matrix(itemParameters[["focal"]][ii, ], nrow = 1),
+                                                        reference = matrix(itemParameters[["reference"]][ii, ], nrow = 1)),
+                                  focalDistribution = focalDistribution,
+                                  numIntegrate      = numIntegrate,
+                                  focalDistrExtra   = focalDistrExtra,
+                                  irtModel = irtModel,
+                                  logistic = logistic)$value
+        }
+
+    } else {
+        if (is.null(quadpts)) {
+            quadpts <- 61
+        } else {
+            quadpts <- quadpts
+        }
+
+        thetaValue <- seq(thetaLim[1L], thetaLim[2L], length.out = quadpts)
+
+        for (ii in 1:nItems) {
+            uDTF[ii] <- sum(uDTFPoint(x = thetaValue,
+                                      itemParameters = list(focal     = matrix(itemParameters[["focal"]][ii, ], nrow = 1),
+                                                            reference = matrix(itemParameters[["reference"]][ii, ], nrow = 1)),
+                                      focalDistribution = focalDistribution,
+                                      numIntegrate      = numIntegrate,
+                                      focalDistrExtra   = focalDistrExtra,
+                                      irtModel = irtModel,
+                                      logistic = logistic)
+            )
+        }
+    }
+
+    uDTF <- as.numeric(uDTF)
+
+    return(uDTF)
 }
 
 
@@ -117,13 +461,16 @@ Ncdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, foca
 
 #' Calculates CDIF index for an item with given item parameters of focal and reference groups.
 #'
-#' @param itemParameters    A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should me a matrix with nrow equal to the number of items.
+#' @param itemParameters    A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Item parameters for each group should be a matrix with nrow equal to the number of items.
 #' @param irtModel          A string stating the irtModel to be used. Should be one of "1pl", "2pl", "3pl", "grm" or "pcm".
-#' @param focalAbilities    If NULL, NCDIF is calculated by numerical integration of focal distribution. If not NULL, it must be a numerical vector containing the abilities for the individuals in the focal group.
+#' @param focalAbilities    If NULL, CDIF is calculated by numerical integration or fixed quadrature points of focal distribution. If not NULL, it must be a numerical vector containing the abilities for the individuals in the focal group.
 #' @param focalDistribution A string stating the distribution name to be used for integrating. Only used if focalAbilities is NULL.
 #' @param focalDistrExtra   Extra parameters for the focal group distribution function if needed.
-#' @param subdivisions      A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities is NULL.
 #' @param logistic          A logical value stating if the IRT model will use the logistic or the normal metric. Defaults to using the logistic metric by fixing the D constant to 1. If FALSE the constant is set to 1.702 so that the normal metric is used.
+#' @param numIntegrate      A logical value stating if CDIF is calculated using numerical integration (adaptive quadrature points) or fixed quadrature points. Defaults to using integration.
+#' @param subdivisions      A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities is NULL.
+#' @param quadpts           A numeric value indicating the number of quadrature points for calculating CDIF. Only used if numIntegrate is FALSE.
+#' @param theta_lim         A list containing the lower and upper limit of the ability to bin over using quadrature points. Only used if numIntegrate is FALSE.
 #'
 #' @return cdif Numeric vector with the CDIF index value for each item.
 #'
@@ -148,19 +495,28 @@ Ncdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, foca
 #' # # threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
 #' # # threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
 #' # #
+#' # # # Using numerical integration (adaptive quadrature points)
 #' # # threePlCdif <- Cdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
 #' # #                     focalAbilities = NULL, focalDistribution = "norm",
-#' # #                     subdivisions = 5000, logistic = TRUE)
+#' # #                     subdivisions = 5000, logistic = TRUE,
+#' # #                     numIntegrate = TRUE)
+#' # # # Using fixed quadrature points
+#' # # threePlCdif <- Cdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
+#' # #                     focalAbilities = NULL, focalDistribution = "norm",
+#' # #                     subdivisions = 5000, logistic = TRUE,
+#' # #                     numIntegrate = FALSE)
 #'
 #' @references Raju, N. S., van der Linden, W. J., & Fleer, P. F. (1995). IRT-based internal measures of differential functioning of items and tests. Applied Psychological Measurement, 19, 353--368. doi:10.1177/014662169501900405
+#' @references Chalmers, R. P., Counsell, A., and Flora, D. B. (2016). It might not make a big DIF: Improved Differential Test Functioning statistics that account for sampling variability. Educational and Psychological Measurement, 76, 114-140. doi:10.1177/0013164415584576
 #'
-#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>, Trung T. Q. Le
 #'
 Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
-                  subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
+                  subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1),
+                  theta_lim = c(-6, 6), quadpts = NULL, numIntegrate = TRUE) {
 
   CdifPoint <- function (x, itemParameters, iiItem, jjItem, focalDistribution, irtModel, logistic,
-                         focalDistrExtra) {
+                         focalDistrExtra, numIntegrate) {
     iiItemDifference <- CalculateItemDifferences(thetaValue = x,
                                                  itemParameters = list(focal     = matrix(itemParameters[["focal"]][iiItem, ],     nrow = 1),
                                                                        reference = matrix(itemParameters[["reference"]][iiItem, ], nrow = 1)),
@@ -176,43 +532,84 @@ Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focal
     pars$x <- x
     focalGroupDensity <- do.call(paste("d", focalDistribution, sep = ""), pars)
 
+    if (!numIntegrate) {
+        normConst <- sum(focalGroupDensity)
+        focalGroupDensity <- focalGroupDensity / normConst
+    }
+
     out <- focalGroupDensity * iiItemDifference * jjItemDifference
 
     return(out)
   }
 
-  if (is.null(focalAbilities)) {
-    nItems <- nrow(itemParameters[["focal"]])
-    cdif   <- matrix(nrow = nItems, ncol = nItems)
+  if (!is.null(focalAbilities)) {
+      nIndividuals <- length(focalAbilities)
+      cdif <- CalculateItemDifferences(thetaValue = focalAbilities, itemParameters = itemParameters,
+                                       irtModel = irtModel, logistic = logistic)
+      cdif <- rowSums((t(cdif) %*% cdif) / nIndividuals)
 
-    for (ii in 1:nItems) {
-      for (jj in 1:nItems) {
-        if (ii <= jj) {
-          cdif[ii, jj] <- integrate(f = CdifPoint, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                    itemParameters = itemParameters,
-                                    iiItem = ii, jjItem = jj,
-                                    focalDistribution = focalDistribution,
-                                    focalDistrExtra = focalDistrExtra, irtModel = irtModel,
-                                    logistic = logistic)$value
-        }
+      return(cdif)
+  }
+
+  nItems <- nrow(itemParameters[["focal"]])
+  cdif   <- matrix(nrow = nItems, ncol = nItems)
+
+  if (numIntegrate) {
+      if (is.null(subdivisions)) {
+          subdivisions <- 5000
+      } else {
+          subdivisions <- subdivisions
       }
-    }
 
-    cdif[lower.tri(cdif)] <- t(cdif)[lower.tri(cdif)]
-    cdif <- rowSums(cdif)
+      for (ii in 1:nItems) {
+          for (jj in 1:nItems) {
+              if (ii <= jj) {
+                  cdif[ii, jj] <- integrate(f = CdifPoint, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                            itemParameters = itemParameters,
+                                            iiItem = ii, jjItem = jj,
+                                            focalDistribution = focalDistribution,
+                                            focalDistrExtra   = focalDistrExtra, irtModel = irtModel,
+                                            numIntegrate      = numIntegrate,
+                                            logistic          = logistic)$value
+              }
+          }
+      }
+
+      cdif[lower.tri(cdif)] <- t(cdif)[lower.tri(cdif)]
+      cdif <- rowSums(cdif)
   } else {
-    nIndividuals <- length(focalAbilities)
-    cdif <- CalculateItemDifferences(thetaValue = focalAbilities, itemParameters = itemParameters,
-                                     irtModel = irtModel, logistic = logistic)
-    cdif <- rowSums((t(cdif) %*% cdif) / nIndividuals)
+      if (is.null(quadpts)) {
+          quadpts <- 61
+      } else {
+          quadpts <- quadpts
+      }
+
+      thetaValue <- seq(theta_lim[1L], theta_lim[2L], length.out = quadpts)
+
+      for (ii in 1:nItems) {
+          for (jj in 1:nItems) {
+              if (ii <= jj) {
+                  cdif[ii, jj] <- sum(CdifPoint(x = thetaValue,
+                                                itemParameters = itemParameters,
+                                                iiItem = ii, jjItem = jj,
+                                                focalDistribution = focalDistribution,
+                                                focalDistrExtra   = focalDistrExtra,
+                                                irtModel          = irtModel,
+                                                numIntegrate      = numIntegrate,
+                                                logistic          = logistic)
+                  )
+              }
+          }
+      }
+
+      cdif[lower.tri(cdif)] <- t(cdif)[lower.tri(cdif)]
+      cdif <- rowSums(cdif)
   }
 
   cdif <- as.numeric(cdif)
 
   return(cdif)
 }
-
-
 
 
 
@@ -226,13 +623,16 @@ Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focal
 #' Calculates DTF index for a set of items with given item parameters of focal and reference groups.
 #'
 #' @param cdif              A numeric vector of CDIF values for the test items. If NULL it is calculated using itemParameters and the other arguments.
-#' @param itemParameters    A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Only used if cdif is NULL. Item parameters for each group should me a matrix with nrow equal to the number of items.
+#' @param itemParameters    A list containing "focal" and "reference" item parameters. Item parameters are assumed to be on the same scale. Only used if cdif is NULL. Item parameters for each group should be a matrix with nrow equal to the number of items.
 #' @param irtModel          A string stating the irtModel to be used. Should be one of "1pl", "2pl", "3pl", "grm" or "pcm". Only used if cdif is NULL.
-#' @param focalAbilities    If NULL, CDIF is calculated by numerical integration of focal distribution. If not NULL, it must be a numerical vector containing the abilities for the individuals in the focal group. Only used if cdif is NULL.
+#' @param focalAbilities    If NULL, CDIF is calculated by numerical integration or fixed quadrature points of focal distribution. If not NULL, it must be a numerical vector containing the abilities for the individuals in the focal group. Only used if cdif is NULL.
 #' @param focalDistribution A string stating the distribution name to be used for integrating. Only used if focalAbilities and cdif are NULL.
 #' @param focalDistrExtra   Extra parameters for the focal group distribution function if needed.
-#' @param subdivisions      A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities and cdif are NULL.
 #' @param logistic          A logical value stating if the IRT model will use the logistic or the normal metric. Defaults to using the logistic metric by fixing the D constant to 1. If FALSE the constant is set to 1.702 so that the normal metric is used. Only used if cdif is NULL.
+#' @param numIntegrate      A logical value stating if CDIF is calculated using numerical integration (adaptive quadrature points) or fixed quadrature points. Defaults to using integration. Only used if cdif is NULL.
+#' @param subdivisions      A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities and cdif are NULL.
+#' @param quadpts           A numeric value indicating the number of quadrature points for calculating CDIF. Only used if numIntegrate is FALSE and if cdif is null.
+#' @param theta_lim         A list containing the lower and upper limit of the ability to bin over using quadrature points. Only used if numIntegrate is FALSE and if cdif is null.
 #'
 #' @return dtf Numeric vector with the CDIF index value for each item.
 #'
@@ -263,11 +663,13 @@ Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focal
 #' # # threePlDtf  <- Dtf(cdif = threePlCdif)
 #'
 #' @references Raju, N. S., van der Linden, W. J., & Fleer, P. F. (1995). IRT-based internal measures of differential functioning of items and tests. Applied Psychological Measurement, 19, 353--368. doi:10.1177/014662169501900405
+#' @references Chalmers, R. P., Counsell, A., and Flora, D. B. (2016). It might not make a big DIF: Improved Differential Test Functioning statistics that account for sampling variability. Educational and Psychological Measurement, 76, 114-140. doi:10.1177/0013164415584576
 #'
-#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>, Trung T. Q. Le
 #'
 Dtf <- function (cdif = NULL, itemParameters = NULL, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
-                 subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
+                 subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1),
+                 theta_lim = c(-6, 6), quadpts = NULL, numIntegrate = TRUE) {
 
   if (is.null(cdif) & is.null(itemParameters)) {
     stop("Either the CDIF values for each item or the item parameters for calculating them must be supplied")
@@ -276,7 +678,7 @@ Dtf <- function (cdif = NULL, itemParameters = NULL, irtModel = "2pl", focalAbil
   if (is.null(cdif)) {
     cdif <- Cdif(itemParameters = itemParameters, irtModel = irtModel, focalAbilities = focalAbilities,
                  focalDistribution = focalDistribution, subdivisions = subdivisions, logistic = logistic,
-                 focalDistrExtra)
+                 focalDistrExtra, theta_lim = theta_lim, quadpts = quadpts, numIntegrate = numIntegrate)
   }
 
   dtf <- sum(cdif)
@@ -967,3 +1369,34 @@ PlotNcdif <- function (iiItem, itemParameters, irtModel = "2pl", logistic = TRUE
 
   return(plotNCDIF)
 }
+
+
+### Example test (to be deleted after)
+data(dichotomousItemParameters)
+
+threePlParameters <- dichotomousItemParameters
+isNot3Pl          <- ((dichotomousItemParameters[['focal']][, 3] == 0) |
+                          (dichotomousItemParameters[['reference']][, 3] == 0))
+
+threePlParameters[['focal']]          <- threePlParameters[['focal']][!isNot3Pl, ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][!isNot3Pl, ]
+threePlParameters[['focal']][, 3]     <- threePlParameters[['focal']][, 3] + 0.1
+threePlParameters[['reference']][, 3] <- threePlParameters[['reference']][, 3] + 0.1
+threePlParameters[['focal']][, 2]     <- threePlParameters[['focal']][, 2] + 1.5
+threePlParameters[['reference']][, 2] <- threePlParameters[['reference']][, 2] + 1.5
+threePlParameters[['focal']]          <- threePlParameters[['focal']][-c(12, 16, 28), ]
+threePlParameters[['reference']]      <- threePlParameters[['reference']][-c(12, 16, 28), ]
+
+threePlCdif <- Cdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
+                    focalAbilities = NULL, focalDistribution = "norm",
+                    subdivisions = 5000, logistic = TRUE, numIntegrate = TRUE)
+
+threePlCdif
+
+threePlCdif_quadpt <- Cdif(itemParameters = dichotomousItemParameters, irtModel = '3pl',
+                    focalAbilities = NULL, focalDistribution = "norm",
+                    subdivisions = 5000, logistic = TRUE, numIntegrate = FALSE)
+threePlCdif_quadpt
+
+cbind(threePlCdif, threePlCdif_quadpt)
+
