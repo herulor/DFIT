@@ -48,8 +48,6 @@
 #'
 #' @return mgncdif            Numeric vector with the MG-NCDIF index value for each item.
 #'
-#' @export
-#'
 #' @examples
 #'
 #' # Data fom Oshima, Wright and White
@@ -122,77 +120,78 @@
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 MGNcdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm", relSizes = NULL,
-                   subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(list(mean = 0, sd = 1))) {
+                     subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(list(mean = 0, sd = 1))) {
 
-    if (!("base" %in% names(itemParameters))) {
-        stop("To compute MGNcdif a base group must be defined. The base group is identified as 'base' among itemParameters. See ?MGNcdif")
+  if (!("base" %in% names(itemParameters))) {
+    stop("To compute MGNcdif a base group must be defined. The base group is identified as 'base' among itemParameters. See ?MGNcdif")
+  }
+  if (length(itemParameters) < 3) {
+    stop("At least three sets of items parameters are needed to compute MGNcdif: One base group and at least two groups that are compared to the base group.")
+  }
+
+  baseParameters <- itemParameters[["base"]]
+
+  groups <- which(names(itemParameters) != "base")
+
+  itemParameters <- itemParameters[groups]
+
+  if (!is.null(focalAbilities)) {
+
+    if (length(focalAbilities) != length(itemParameters)) {
+      stop("If focalAbilities is given, it must be a list of the same length as the itemParameters minus one.")
     }
-    if (length(itemParameters) < 3) {
-        stop("At least three sets of items parameters are needed to compute MGNcdif: One base group and at least two groups that are compared to the base group.")
+    if (!all(names(focalAbilities) %in% names(itemParameters))) {
+      stop("If focalAbilities is given, the names of the list must coincide with the names of the itemParameters list that are not the 'base' group.")
     }
-
-    baseParameters <- itemParameters[["base"]]
-
-    groups <- which(names(itemParameters) != "base")
-
-    itemParameters <- itemParameters[groups]
-
-    if (!is.null(focalAbilities)) {
-
-       if (length(focalAbilities) != length(itemParameters)) {
-           stop("If focalAbilities is given, it must be a list of the same length as the itemParameters minus one.")
-       }
-       if (!all(names(focalAbilities) %in% names(itemParameters))) {
-          stop("If focalAbilities is given, the names of the list must coincide with the names of the itemParameters list that are not the 'base' group.")
-       }
-       if (!all(sapply(focalAbilities, is.numeric))) {
-          stop("Each element of focalAbilities must be a numeric vector.")
-       }
-
-        relSizes <- sapply(focalAbilities, length)
-        relSizes <- relSizes / sum(relSizes)
-        names(relSizes) <- names(itemParameters)
-
-    } else {
-       if (length(focalDistribution) == 1) {
-           focalDistribution <- as.list(rep(focalDistribution, length(itemParameters)))
-           focalDistrExtra   <- as.list(rep(focalDistrExtra, length(itemParameters)))
-
-           names(focalDistribution) <- names(focalDistrExtra) <- names(itemParameters)
-       }
-       if (length(focalDistribution) != length(itemParameters)) {
-           stop("If focalDistribution is given, it must be a list of the same length as the itemParameters minus one.")
-       }
-       if (!all(names(focalDistribution) %in% names(itemParameters))) {
-          stop("If focalDistribution is given, the names of the list must coincide with the names of the itemParameters list that are not the 'base' group.")
-       }
-       if (!all(names(focalDistribution) %in% names(focalDistrExtra))) {
-          stop("If focalDistribution is given, focalDistrExtra must be a list of lists and names(focalDistrExtra) must coincide names(focalDistribution).")
-       }
-
-        if (is.null(relSizes)) {
-        relSizes <- rep(1 / length(focalDistribution), length(focalDistribution))
-        names(relSizes) <- names(itemParameters)
-        }
-
+    if (!all(sapply(focalAbilities, is.numeric))) {
+      stop("Each element of focalAbilities must be a numeric vector.")
     }
 
-    mgncdif <- numeric(nrow(baseParameters))
+    relSizes <- sapply(focalAbilities, length)
+    relSizes <- relSizes / sum(relSizes)
+    names(relSizes) <- names(itemParameters)
 
-    for (iiGroup in names(itemParameters)) {
-        groupParameters <- list(focal     = itemParameters[[iiGroup]],
-                                reference = baseParameters)
-        mgncdif <- mgncdif + (relSizes[iiGroup] *
-                                  Ncdif(itemParameters = groupParameters, irtModel = irtModel,
-                                        focalAbilities    = focalAbilities[[iiGroup]],
-                                        focalDistribution = focalDistribution[[iiGroup]],
-                                        focalDistrExtra   = focalDistrExtra[[iiGroup]],
-                                        subdivisions = subdivisions, logistic = logistic)
-        )
+  } else {
+    if (length(focalDistribution) == 1) {
+      focalDistribution <- as.list(rep(focalDistribution, length(itemParameters)))
+      focalDistrExtra   <- as.list(rep(focalDistrExtra, length(itemParameters)))
+
+      names(focalDistribution) <- names(focalDistrExtra) <- names(itemParameters)
+    }
+    if (length(focalDistribution) != length(itemParameters)) {
+      stop("If focalDistribution is given, it must be a list of the same length as the itemParameters minus one.")
+    }
+    if (!all(names(focalDistribution) %in% names(itemParameters))) {
+      stop("If focalDistribution is given, the names of the list must coincide with the names of the itemParameters list that are not the 'base' group.")
+    }
+    if (!all(names(focalDistribution) %in% names(focalDistrExtra))) {
+      stop("If focalDistribution is given, focalDistrExtra must be a list of lists and names(focalDistrExtra) must coincide names(focalDistribution).")
     }
 
-    return(mgncdif)
+    if (is.null(relSizes)) {
+      relSizes <- rep(1 / length(focalDistribution), length(focalDistribution))
+      names(relSizes) <- names(itemParameters)
+    }
+
+  }
+
+  mgncdif <- numeric(nrow(baseParameters))
+
+  for (iiGroup in names(itemParameters)) {
+    groupParameters <- list(focal     = itemParameters[[iiGroup]],
+                            reference = baseParameters)
+    mgncdif <- mgncdif + (relSizes[iiGroup] *
+                            Ncdif(itemParameters = groupParameters, irtModel = irtModel,
+                                  focalAbilities    = focalAbilities[[iiGroup]],
+                                  focalDistribution = focalDistribution[[iiGroup]],
+                                  focalDistrExtra   = focalDistrExtra[[iiGroup]],
+                                  subdivisions = subdivisions, logistic = logistic)
+    )
+  }
+
+  return(mgncdif)
 
 }
 
@@ -220,8 +219,6 @@ MGNcdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, fo
 #' @param nReplicates     A numeric value indicating the number of replications to perform
 #'
 #' @return itemParameters A list with item parameters for focal and reference groups
-#'
-#' @export
 #'
 #' @importFrom simex diag.block
 #'
@@ -284,7 +281,9 @@ MGNcdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, fo
 #'
 #' itemCovariances <- lapply(itemParameters, AseIrt, irtModel = "3pl", sampleSize = 5000)
 #'
-#' mgIpr <- IprMG(itemParameters = itemParameters, itemCovariances = itemCovariances, nReplicates = 100)
+#' mgIpr <- IprMG(itemParameters = itemParameters,
+#'                itemCovariances = itemCovariances,
+#'                nReplicates = 100)
 #'
 #' @references Oshima, T. C., Wright, K., & White, N. (2014). Multiple-Group Noncompensatory Differential Item Functioning in Raju’s Differential Functioning of Items and Tests. International Journal of Testing, 15, 254–273.
 #' @references Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
@@ -292,6 +291,7 @@ MGNcdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, fo
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 IprMG <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 
   # # Data check
@@ -321,15 +321,15 @@ IprMG <- function (itemParameters, itemCovariances, nReplicates = 5000) {
   groupParameters <- list()
 
   for (iiGroup in groupNames) {
-      if (length(itemCovariances[["base"]]) == nrow(itemParameters[[iiGroup]])) {
-        itemCovs <- diag.block(itemCovariances[[iiGroup]])
-      } else {
-        itemCovs <- itemCovariances[[iiGroup]]
-      }
+    if (length(itemCovariances[["base"]]) == nrow(itemParameters[[iiGroup]])) {
+      itemCovs <- diag.block(itemCovariances[[iiGroup]])
+    } else {
+      itemCovs <- itemCovariances[[iiGroup]]
+    }
 
-      groupParameters[[iiGroup]] <- rmvnorm(n = nReplicates, mean = itemPars, sigma = itemCovs, method = "chol")
-      groupParameters[[iiGroup]] <- tapply(groupParameters[[iiGroup]] , row(groupParameters[[iiGroup]]),
-                                  function (x) matrix(x, nrow = nItem, byrow = TRUE))
+    groupParameters[[iiGroup]] <- rmvnorm(n = nReplicates, mean = itemPars, sigma = itemCovs, method = "chol")
+    groupParameters[[iiGroup]] <- tapply(groupParameters[[iiGroup]] , row(groupParameters[[iiGroup]]),
+                                         function (x) matrix(x, nrow = nItem, byrow = TRUE))
   }
 
   # # Join the lists for each replication
@@ -337,7 +337,7 @@ IprMG <- function (itemParameters, itemCovariances, nReplicates = 5000) {
   for (ii in seq(length(groupParameters[["base"]]))) {
     itemParameterList[[ii]]                <- list()
     for (iiGroup in groupNames) {
-        itemParameterList[[ii]][[iiGroup]] <- groupParameters[[iiGroup]][[ii]]
+      itemParameterList[[ii]][[iiGroup]] <- groupParameters[[iiGroup]][[ii]]
     }
   }
 
@@ -361,14 +361,15 @@ IprMG <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 #' @param focalAbilities    If NULL, NCDIF is calculated by numerical integration of focal distribution. If not NULL, must be a numerical vector containing the abilities for the individuals in the focal group.
 #' @param focalDistribution A string stating the distribution name to be used for integrating. Only used if focalAbilities is NULL.
 #' @param focalDistrExtra   A list stating the extra parameters needed by the focal distribution function.
+#' @param relSizes          If not NULL, a numeric vector with named components containing the relative sizes of the groups.
+#'                          Used to obtain the weighted average of the pairwise NCDIF statistics.
+#'                          If NULL and focalAbilities is NULL, defaults to 1/length(focalDistribution)
 #' @param subdivisions      A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities is NULL.
 #' @param logistic          A logical value stating if the IRT model will use the logistic or the normal metric. Defaults to using the logistic metric by fixing the D constant to 1. If FALSE the constant is set to 1.702 so that the normal metric is used.
 #'
 #' @return mgncdif A numeric matrix with the NCDIF values for all the item parameter in each set of itemParameterList
 #'
 #' @references Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
-#'
-#' @export
 #'
 #' @examples
 #'#' # Data fom Oshima, Wright and White
@@ -429,21 +430,24 @@ IprMG <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 #'
 #' itemCovariances <- lapply(itemParameters, AseIrt, irtModel = "3pl", sampleSize = 5000)
 #'
-#' mgIpr <- IprMG(itemParameters = itemParameters, itemCovariances = itemCovariances, nReplicates = 100)
+#' mgIpr <- IprMG(itemParameters = itemParameters,
+#'                itemCovariances = itemCovariances,
+#'                nReplicates = 100)
 #' mgIpr <- Bound3PlIpr(mgIpr)
 #'
 #' mgncdifIpr <- IprMGNcdif(itemParameterList = mgIpr, irtModel = "3pl")
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 IprMGNcdif <- function (itemParameterList, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
                         relSizes = NULL,
-                      subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
+                        subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
 
   mgncdif <- sapply(itemParameterList, function (x) MGNcdif(x, irtModel = irtModel, focalAbilities = focalAbilities,
-                                                        focalDistribution = focalDistribution,
-                                                        focalDistrExtra = focalDistrExtra,
-                                                        subdivisions = subdivisions, logistic = logistic))
+                                                            focalDistribution = focalDistribution,
+                                                            focalDistrExtra = focalDistrExtra,
+                                                            subdivisions = subdivisions, logistic = logistic))
 
   if (nrow(itemParameterList[[1]][['base']]) == 1) {
     mgncdif <- matrix(mgncdif, nrow = 1)
@@ -451,5 +455,3 @@ IprMGNcdif <- function (itemParameterList, irtModel = "2pl", focalAbilities = NU
 
   return(mgncdif)
 }
-
-

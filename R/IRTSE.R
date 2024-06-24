@@ -70,11 +70,11 @@ ProductProbabilities <- function(thetaValue, itemParameters, logistic, irtModel 
 
   for (ii in seq(nrow(pq))) {
     pq[ii, ] <- ((itemParameters[, 3] + ((1L - itemParameters[, 3]) *
-                                         plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[, 2])),
-                                                scale = 1L / (kD * itemParameters[, 1])))) *
-                 (1L - (itemParameters[, 3] + ((1 - itemParameters[, 3]) *
-                                               plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[, 2])),
-                                                      scale = 1L / (kD * itemParameters[, 1]))))))
+                                           plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[, 2])),
+                                                  scale = 1L / (kD * itemParameters[, 1])))) *
+                   (1L - (itemParameters[, 3] + ((1 - itemParameters[, 3]) *
+                                                   plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[, 2])),
+                                                          scale = 1L / (kD * itemParameters[, 1]))))))
   }
 
   return(pq)
@@ -106,8 +106,6 @@ ProductProbabilities <- function(thetaValue, itemParameters, logistic, irtModel 
 #'
 #' @references Li, Y. & Lissitz, R. (2004). Applications of the analytically derived standard errors of Item Response Theory item parameter estimates. Journal of educational measurement, 41(2), 85--117. doi:10.1111/j.1745-3984.2004.tb01109.x
 #'
-#' @export
-#'
 #' @examples
 #' # # Not run
 #' # #
@@ -137,6 +135,7 @@ ProductProbabilities <- function(thetaValue, itemParameters, logistic, irtModel 
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 AseIrt <- function (itemParameters, distribution = "norm", distributionParameters = list(mean = 0, sd = 1),
                     logistic = TRUE, sampleSize = 1, irtModel = "3pl", subdivisions = 5000) {
   # # TODO: Change so that each item may be modelled by a different IRT
@@ -291,19 +290,19 @@ Ase2pl <- function (itemParameters, distribution = "norm", distributionParameter
     iiItemParameters <- matrix(itemParameters[ii, ], nrow = 1)
     ase[[ii]] <- matrix(nrow = 2, ncol = 2)
     ase[[ii]][1, 1] <- (sampleSize * kD * kD *
-                        integrate(f = IntegrandDiscrimination, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                  distribution = distribution, distributionParameters = distributionParameters,
-                                  itemParameters = iiItemParameters, logistic = logistic)$value)
+                          integrate(f = IntegrandDiscrimination, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                    distribution = distribution, distributionParameters = distributionParameters,
+                                    itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]][1, 2] <- ase[[ii]][2, 1]  <- (-sampleSize * kD * kD * iiItemParameters[, 1] *
-                                            integrate(f = IntegrandDiscriminationDifficulty, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                                      distribution = distribution, distributionParameters = distributionParameters,
-                                                      itemParameters = iiItemParameters, logistic = logistic)$value)
+                                              integrate(f = IntegrandDiscriminationDifficulty, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                                        distribution = distribution, distributionParameters = distributionParameters,
+                                                        itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]][2, 2] <- (sampleSize * kD * kD * iiItemParameters[, 1] * iiItemParameters[, 1] *
-                        integrate(f = IntegrandDifficulty, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                  distribution = distribution, distributionParameters = distributionParameters,
-                                  itemParameters = iiItemParameters, logistic = logistic)$value)
+                          integrate(f = IntegrandDifficulty, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                    distribution = distribution, distributionParameters = distributionParameters,
+                                    itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]] <- solve(ase[[ii]])
   }
@@ -441,34 +440,34 @@ Ase3pl <- function (itemParameters, distribution = "norm", distributionParameter
     iiItemParameters <- matrix(itemParameters[ii, ], nrow = 1)
     ase[[ii]] <- matrix(nrow = 3, ncol = 3)
     ase[[ii]][1, 1] <- (sampleSize * kD * kD * (1 - iiItemParameters[, 3]) * (1 - iiItemParameters[, 3]) *
-                        integrate(f = IntegrandDiscrimination, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                  distribution = distribution, distributionParameters = distributionParameters,
-                                  itemParameters = iiItemParameters, logistic = logistic)$value)
+                          integrate(f = IntegrandDiscrimination, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                    distribution = distribution, distributionParameters = distributionParameters,
+                                    itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]][1, 2] <- ase[[ii]][2, 1]  <- (-sampleSize * kD * kD * iiItemParameters[, 1] * (1 - iiItemParameters[, 3]) * (1 - iiItemParameters[, 3]) *
-                                            integrate(f = IntegrandDiscriminationDifficulty, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                                      distribution = distribution, distributionParameters = distributionParameters,
-                                                      itemParameters = iiItemParameters, logistic = logistic)$value)
+                                              integrate(f = IntegrandDiscriminationDifficulty, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                                        distribution = distribution, distributionParameters = distributionParameters,
+                                                        itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]][1, 3] <- ase[[ii]][3, 1]  <- (sampleSize * kD * (1 - iiItemParameters[, 3]) *
-                                            integrate(f = IntegrandDiscriminationGuessing, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                                      distribution = distribution, distributionParameters = distributionParameters,
-                                                      itemParameters = iiItemParameters, logistic = logistic)$value)
+                                              integrate(f = IntegrandDiscriminationGuessing, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                                        distribution = distribution, distributionParameters = distributionParameters,
+                                                        itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]][2, 2] <- (sampleSize * kD * kD * iiItemParameters[, 1] * iiItemParameters[, 1] * (1 - iiItemParameters[, 3]) * (1 - iiItemParameters[, 3]) *
-                        integrate(f = IntegrandDifficulty, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                  distribution = distribution, distributionParameters = distributionParameters,
-                                  itemParameters = iiItemParameters, logistic = logistic)$value)
+                          integrate(f = IntegrandDifficulty, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                    distribution = distribution, distributionParameters = distributionParameters,
+                                    itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]][2, 3] <- ase[[ii]][3, 2]  <- (-sampleSize * kD * iiItemParameters[, 1] * (1 - iiItemParameters[, 3]) *
-                                            integrate(f = IntegrandDifficultyGuessing, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                                      distribution = distribution, distributionParameters = distributionParameters,
-                                                      itemParameters = iiItemParameters, logistic = logistic)$value)
+                                              integrate(f = IntegrandDifficultyGuessing, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                                        distribution = distribution, distributionParameters = distributionParameters,
+                                                        itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]][3, 3] <- (sampleSize *
-                        integrate(f = IntegrandGuessing, subdivisions = subdivisions, lower = -Inf, upper = Inf,
-                                  distribution = distribution, distributionParameters = distributionParameters,
-                                  itemParameters = iiItemParameters, logistic = logistic)$value)
+                          integrate(f = IntegrandGuessing, subdivisions = subdivisions, lower = -Inf, upper = Inf,
+                                    distribution = distribution, distributionParameters = distributionParameters,
+                                    itemParameters = iiItemParameters, logistic = logistic)$value)
 
     ase[[ii]] <- solve(ase[[ii]])
 

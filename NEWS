@@ -21,3 +21,15 @@ DFIT 1.0-3
 * fixed citation to Raju, van der Linden & Fleer's 1995 paper.
 * now imports stats functions that resulted in no visible bindings in more recent versions of R.
 * added citation to JSS paper.
+
+
+DFIT 1.1
+========
+
+* added functions for importing item parameters from mirt (Chalmers, 2012)
+
+
+DFIT 1.2
+========
+
+* added Multiple Groups DIF functions to compute MG-NCDIF

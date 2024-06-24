@@ -85,7 +85,9 @@ itemParameters <- list(base = baseParameters,
 
 itemCovariances <- lapply(itemParameters, AseIrt, irtModel = "3pl", sampleSize = 5000)
 
-mgIpr <- IprMG(itemParameters = itemParameters, itemCovariances = itemCovariances, nReplicates = 100)
+mgIpr <- IprMG(itemParameters = itemParameters,
+               itemCovariances = itemCovariances,
+               nReplicates = 100)
 
 }
 \references{

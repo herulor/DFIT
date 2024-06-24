@@ -82,18 +82,18 @@ CrossedProbabilities <- function(thetaValue, itemParameters, logistic, irtModel 
 
   for (ii in seq(nrow(numProbabilities))) {
     numProbabilities[ii, ] <- (itemParameters[["reference"]][, 3] + ((1L - itemParameters[["reference"]][, 3]) *
-                                                                     plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[["reference"]][, 2])),
-                                                                            scale = 1L / (kD * itemParameters[["reference"]][, 1])))) *
-(1L - (itemParameters[["focal"]][, 3] + ((1 - itemParameters[["focal"]][, 3]) *
-                                         plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[["focal"]][, 2])),
-                                                scale = 1L / (kD * itemParameters[["focal"]][, 1])))))
+                                                                       plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[["reference"]][, 2])),
+                                                                              scale = 1L / (kD * itemParameters[["reference"]][, 1])))) *
+      (1L - (itemParameters[["focal"]][, 3] + ((1 - itemParameters[["focal"]][, 3]) *
+                                                 plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[["focal"]][, 2])),
+                                                        scale = 1L / (kD * itemParameters[["focal"]][, 1])))))
 
-denProbabilities[ii, ] <-  (1L - (itemParameters[["reference"]][, 3] + ((1L - itemParameters[["reference"]][, 3]) *
-                                                                        plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[["reference"]][, 2])),
-                                                                               scale = 1L / (kD * itemParameters[["reference"]][, 1]))))) *
-(itemParameters[["focal"]][, 3] + ((1 - itemParameters[["focal"]][, 3]) *
-                                   plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[["focal"]][, 2])),
-                                          scale = 1L / (kD * itemParameters[["focal"]][, 1]))))
+    denProbabilities[ii, ] <-  (1L - (itemParameters[["reference"]][, 3] + ((1L - itemParameters[["reference"]][, 3]) *
+                                                                              plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[["reference"]][, 2])),
+                                                                                     scale = 1L / (kD * itemParameters[["reference"]][, 1]))))) *
+      (itemParameters[["focal"]][, 3] + ((1 - itemParameters[["focal"]][, 3]) *
+                                           plogis(q = thetaValue[ii], location = as.numeric(t(itemParameters[["focal"]][, 2])),
+                                                  scale = 1L / (kD * itemParameters[["focal"]][, 1]))))
 
   }
 
@@ -128,8 +128,6 @@ denProbabilities[ii, ] <-  (1L - (itemParameters[["reference"]][, 3] + ((1L - it
 #'
 #' @return mh                   A numeric vector containing the Mantel-Haenszel statistics for each item
 #'
-#' @export
-#'
 #' @examples
 #'
 #' data(dichotomousItemParameters)
@@ -156,6 +154,7 @@ denProbabilities[ii, ] <-  (1L - (itemParameters[["reference"]][, 3] + ((1L - it
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 IrtMh <- function (itemParameters, irtModel = "2pl", focalDistribution = "norm", referenceDistribution = "norm",
                    focalDistrExtra = list(mean = 0, sd = 1), referenceDistrExtra = list(mean = 0, sd = 1),
                    groupRatio = 1, logistic = TRUE, subdivisions = 5000) {
@@ -182,13 +181,13 @@ IrtMh <- function (itemParameters, irtModel = "2pl", focalDistribution = "norm",
   DensityFactor <- function(x, focalDistribution, focalDistrExtra, referenceDistribution, referenceDistrExtra,
                             focalBaseRate, referenceBaseRate) {
     out <- (FocalDensity(x, focalDistribution = focalDistribution, focalDistrExtra = focalDistrExtra) *
-            ReferenceDensity(x, referenceDistribution = referenceDistribution,
-                             referenceDistrExtra = referenceDistrExtra))
+              ReferenceDensity(x, referenceDistribution = referenceDistribution,
+                               referenceDistrExtra = referenceDistrExtra))
 
     den <- ((focalBaseRate * FocalDensity(x, focalDistribution = focalDistribution,
                                           focalDistrExtra = focalDistrExtra)) +
-            (referenceBaseRate * ReferenceDensity(x, referenceDistribution = referenceDistribution,
-                                                  referenceDistrExtra = referenceDistrExtra)))
+              (referenceBaseRate * ReferenceDensity(x, referenceDistribution = referenceDistribution,
+                                                    referenceDistrExtra = referenceDistrExtra)))
 
     out[out != 0] <- out[out != 0] / den[out != 0]
 
@@ -252,7 +251,7 @@ IrtMh <- function (itemParameters, irtModel = "2pl", focalDistribution = "norm",
                                reference = matrix(itemParameters[["reference"]][ii, ], nrow = 1))
       if (irtModel == "2pl" & (iiItemParameters[["focal"]][, 1] == iiItemParameters[["reference"]][, 1])) {
         num[ii] <- exp(-kD * iiItemParameters[["focal"]][, 1] *
-                       (iiItemParameters[["reference"]][, 2] - iiItemParameters[["focal"]][, 2]))
+                         (iiItemParameters[["reference"]][, 2] - iiItemParameters[["focal"]][, 2]))
         den[ii] <- 1
       } else {
         num[ii] <- integrate(f = NumIntegrand, subdivisions = subdivisions, lower = -Inf, upper = Inf,
@@ -293,8 +292,6 @@ IrtMh <- function (itemParameters, irtModel = "2pl", focalDistribution = "norm",
 #'
 #' @return delta A numeric vector containing the delta values
 #'
-#' @export
-#'
 #' @examples
 #'
 #' data(dichotomousItemParameters)
@@ -323,6 +320,7 @@ IrtMh <- function (itemParameters, irtModel = "2pl", focalDistribution = "norm",
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 DeltaMhIrt <- function (mh, logistic = FALSE) {
 
   if (logistic) {

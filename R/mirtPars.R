@@ -20,8 +20,12 @@
 #' for one or two groups
 #'
 #' @param mod       A mirt object containing the fit of unidimensional model.
-#' @param focal     Character. Required if mod is MultipleGroupClass, focal should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.
-#' @param reference Character. Required if mod is MultipleGroupClass, reference should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.
+#' @param reference Character. If mod is of class MultipleGroupClass and parameters from precisely two groups are to be extracted,
+#'                             'reference' should coincide with the label for the reference group.
+#'                             If mod is of class MultipleGroupClass and parameers from all groups are to be extracted,
+#'                             'reference' should be NULL.
+#'                             If mod is SingleGroupClass, it is ignored.
+#' @param focal     Character. See description of 'reference'.
 #'
 #' @return If mod contains any itemtype == "Rasch", a list with the item parameters and the estimate covariances (if available).
 #' If mod is SingleGroupClass, the list contains the item parameters as a matrix and the covariances as a list.
@@ -32,6 +36,27 @@
 #' data <- expand.table(LSAT7)
 #' (mod1 <- mirt(data, model = 1, itemtype = "Rasch", SE = TRUE))
 #' (DFIT:::ExtractRaschMirt(mod1))
+#'
+#' # From mirt's multipleGroup
+#' set.seed(12345)
+#' a <- matrix(abs(rnorm(15, 1, .3)), ncol = 1)
+#' d <- matrix(rnorm(15, 0, .7), ncol = 1)
+#' itemtype <- rep('2PL', nrow(a))
+#' N <- 1000
+#' dataset1 <- simdata(a, d, N, itemtype)
+#' dataset2 <- simdata(a, d, N, itemtype,
+#'                     mu = .1, sigma = matrix(1.5))
+#' dataset3 <- simdata(a, d, N, itemtype,
+#'                     mu = -.1, sigma = matrix(1.5))
+#' dataset4 <- simdata(a, d, N, itemtype,
+#'                     mu = 0, sigma = matrix(1.5))
+#'
+#' dat <- rbind(dataset1, dataset2, dataset3, dataset4)
+#' group <- rep(paste0('D', 1:4), each = N)
+#'
+#' (mod2 <- multipleGroup(dat, 1, itemtype = 'Rasch', group = group, SE = TRUE))
+#' (DFIT:::ExtractRaschMirt(mod2, focal = "D1", reference = "D4"))
+#' (DFIT:::ExtractRaschMirt(mod2))
 #'
 ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
 
@@ -54,32 +79,34 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
     if (class(mod) == "SingleGroupClass") {
         itemPars <- matrix(
             mirt::coef(mod,
-                 IRTpars = TRUE,
-                 simplify = TRUE)[["items"]][whichItems, "b"],
+                       IRTpars = TRUE,
+                       simplify = TRUE)[["items"]][whichItems, "b"],
             ncol = 1)
 
     } else if (class(mod) == "MultipleGroupClass") {
-        if (is.null(focal) || is.null(reference)) {
-            stop("focal and reference group names are required.")
-        }
-        if (!(focal %in% mod@Data$groupNames)) {
-            stop("focal does not match any group name.")
-        }
-        if (!(reference %in% mod@Data$groupNames)) {
-            stop("reference does not match any group name.")
-        }
-
         itemPars <- lapply(mirt::coef(mod,
-                                IRTpars = TRUE,
-                                simplify = TRUE),
+                                      IRTpars = TRUE,
+                                      simplify = TRUE),
                            function (x) {
                                matrix(x[["items"]][whichItems, "b"],
                                       ncol = 1)
                            }
         )
+        if (is.null(focal) && is.null(reference)) {
+        } else {
+            if (is.null(focal) || is.null(reference)) {
+                stop("Both focal and reference group names are required or both should be NULL.")
+            }
+            if (!(focal %in% mod@Data$groupNames)) {
+                stop("focal does not match any group name.")
+            }
+            if (!(reference %in% mod@Data$groupNames)) {
+                stop("reference does not match any group name.")
+            }
 
-        itemPars <- itemPars[c(focal, reference)]
-        names(itemPars) <- c("focal", "reference")
+            itemPars <- itemPars[c(focal, reference)]
+            names(itemPars) <- c("focal", "reference")
+        }
     }
 
     if (mod@Options[["SE"]]) {
@@ -98,7 +125,7 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichCov <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichCov
-                )
+            )
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
@@ -111,10 +138,7 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
 
             nGroups <- length(mod@Data$groupNames)
             nPars   <- nVcov / nGroups
-            nParsGroup <- as.numeric(gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)[nPars + 1]) - 1
-
-            whichFocal     <- which(mod@Data$groupNames == focal)
-            whichReference <- which(mod@Data$groupNames == reference)
+            nParsGroup <- as.numeric(gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)[nPars + 1]) - 2
 
             strMatrix              <- !is.na(coef(mod, simplify = TRUE)[[1]][["items"]])
             strMatrix              <- strMatrix[, sort(colnames(strMatrix))]
@@ -124,20 +148,37 @@ ExtractRaschMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichCov <- ordCoefs[whichItems, "d"]
 
-            pickFocal    <- whichCov + (nParsGroup * (whichFocal - 1))
-            pickReferece <- whichCov + (nParsGroup * (whichReference - 1))
+            if (!is.null(focal)) {
+                whichFocal     <- which(mod@Data$groupNames == focal)
+                whichReference <- which(mod@Data$groupNames == reference)
 
-            pickFocal <- which(as.numeric(
-                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
+                pickFocal    <- whichCov + (nParsGroup * (whichFocal - 1))
+                pickReferece <- whichCov + (nParsGroup * (whichReference - 1))
+
+                pickFocal <- which(as.numeric(
+                    gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
                 )
 
-            pickReferece <- which(as.numeric(
-                gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
+                pickReferece <- which(as.numeric(
+                    gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
                 )
 
-            itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
-            itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
+                itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
+                itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
 
+            } else {
+                for (iiGroup in mod@Data$groupNames) {
+                    whichGroup     <- which(mod@Data$groupNames == iiGroup)
+
+                    pickGroup    <- whichCov + (nParsGroup * (whichGroup - 1))
+
+                    pickGroup <- which(as.numeric(
+                        gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickGroup
+                    )
+
+                    itemCov[[iiGroup]] <- vcovMod[pickGroup, pickGroup]
+                }
+            }
         }
     } else {
         itemCov <- NULL
@@ -189,8 +230,8 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
             mirt::coef(mod,
-                 IRTpars = TRUE,
-                 simplify = TRUE)[["items"]][whichItems, c("a", "b")])
+                       IRTpars = TRUE,
+                       simplify = TRUE)[["items"]][whichItems, c("a", "b")])
 
     } else if (class(mod) == "MultipleGroupClass") {
         if (is.null(focal) || is.null(reference)) {
@@ -204,8 +245,8 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
         }
 
         itemPars <- lapply(mirt::coef(mod,
-                                IRTpars = TRUE,
-                                simplify = TRUE),
+                                      IRTpars = TRUE,
+                                      simplify = TRUE),
                            function (x) {
                                as.matrix(x[["items"]][whichItems, c("a", "b")])
                            }
@@ -233,15 +274,15 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichCov <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichCov
-                )
+            )
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
@@ -252,11 +293,11 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
             trans2PL[which(whichCov %in% whichDis)] <- transDisc
             trans2PL[which(whichCov %in% whichDif)] <- transDiff
 
-#            itemCov <- msm::deltamethod(g = trans2PL,
+            #            itemCov <- msm::deltamethod(g = trans2PL,
             itemCov <- deltamethod(g = lapply(trans2PL, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov,
-                                        ses = FALSE)
+                                   mean = as.numeric(t(itemPars)),
+                                   cov = itemCov,
+                                   ses = FALSE)
 
         } else if (class(mod) == "MultipleGroupClass") {
             itemCov <- list()
@@ -287,19 +328,19 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             pickFocal <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
-                )
+            )
 
             pickReferece <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
-                )
+            )
 
             itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
             itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
@@ -313,16 +354,16 @@ Extract2PLMirt <- function (mod, focal = NULL, reference = NULL) {
             trans2PL[which(whichCov %in% whichDis)] <- transDisc
             trans2PL[which(whichCov %in% whichDif)] <- transDiff
 
-#            itemCov[["focal"]] <- msm::deltamethod(g = trans2PL,
+            #            itemCov[["focal"]] <- msm::deltamethod(g = trans2PL,
             itemCov[["focal"]] <- deltamethod(g = lapply(trans2PL, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov[["focal"]],
-                                        ses = FALSE)
+                                              mean = as.numeric(t(itemPars)),
+                                              cov = itemCov[["focal"]],
+                                              ses = FALSE)
 
             itemCov[["reference"]] <- deltamethod(g = lapply(trans2PL, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov[["reference"]],
-                                        ses = FALSE)
+                                                  mean = as.numeric(t(itemPars)),
+                                                  cov = itemCov[["reference"]],
+                                                  ses = FALSE)
 
 
         }
@@ -378,8 +419,8 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
             mirt::coef(mod,
-                 IRTpars = TRUE,
-                 simplify = TRUE)[["items"]][whichItems, c("a", "b", "g")])
+                       IRTpars = TRUE,
+                       simplify = TRUE)[["items"]][whichItems, c("a", "b", "g")])
 
     } else if (class(mod) == "MultipleGroupClass") {
         if (is.null(focal) || is.null(reference)) {
@@ -393,8 +434,8 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
         }
 
         itemPars <- lapply(mirt::coef(mod,
-                                IRTpars = TRUE,
-                                simplify = TRUE),
+                                      IRTpars = TRUE,
+                                      simplify = TRUE),
                            function (x) {
                                as.matrix(x[["items"]][whichItems, c("a", "b", "g")])
                            }
@@ -423,19 +464,19 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichCov <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichCov
-                )
+            )
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             whichGss <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichGss
-                )
+            )
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
@@ -448,11 +489,11 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
             trans3PL[which(whichCov %in% whichDif)] <- transDiff
             trans3PL[which(whichCov %in% whichGss)] <- transGuss
 
-#            itemCov <- msm::deltamethod(g = trans3PL,
+            #            itemCov <- msm::deltamethod(g = trans3PL,
             itemCov <- deltamethod(g = lapply(trans3PL, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov,
-                                        ses = FALSE)
+                                   mean = as.numeric(t(itemPars)),
+                                   cov = itemCov,
+                                   ses = FALSE)
 
         } else if (class(mod) == "MultipleGroupClass") {
             itemCov <- list()
@@ -484,23 +525,23 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             whichGss <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichGss
-                )
+            )
 
             pickFocal <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
-                )
+            )
 
             pickReferece <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
-                )
+            )
 
             itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
             itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
@@ -514,16 +555,16 @@ Extract3PLMirt <- function (mod, focal = NULL, reference = NULL) {
             trans3PL[which(whichCov %in% whichDif)] <- transDiff
             trans3PL[which(whichCov %in% whichGss)] <- transGuss
 
-#            itemCov[["focal"]] <- msm::deltamethod(g = trans3PL,
+            #            itemCov[["focal"]] <- msm::deltamethod(g = trans3PL,
             itemCov[["focal"]] <- deltamethod(g = lapply(trans3PL, as.formula),
-                                        mean = as.numeric(t(itemPars[["focal"]])),
-                                        cov = itemCov[["focal"]],
-                                        ses = FALSE)
+                                              mean = as.numeric(t(itemPars[["focal"]])),
+                                              cov = itemCov[["focal"]],
+                                              ses = FALSE)
 
             itemCov[["reference"]] <- deltamethod(g = lapply(trans3PL, as.formula),
-                                        mean = as.numeric(t(itemPars[["reference"]])),
-                                        cov = itemCov[["reference"]],
-                                        ses = FALSE)
+                                                  mean = as.numeric(t(itemPars[["reference"]])),
+                                                  cov = itemCov[["reference"]],
+                                                  ses = FALSE)
 
 
         }
@@ -578,8 +619,8 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
             mirt::coef(mod,
-                 IRTpars = TRUE,
-                 simplify = TRUE)[["items"]][whichItems, c("a", "b", "g", "u")])
+                       IRTpars = TRUE,
+                       simplify = TRUE)[["items"]][whichItems, c("a", "b", "g", "u")])
 
     } else if (class(mod) == "MultipleGroupClass") {
         if (is.null(focal) || is.null(reference)) {
@@ -593,8 +634,8 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
         }
 
         itemPars <- lapply(mirt::coef(mod,
-                                IRTpars = TRUE,
-                                simplify = TRUE),
+                                      IRTpars = TRUE,
+                                      simplify = TRUE),
                            function (x) {
                                as.matrix(x[["items"]][whichItems, c("a", "b", "g", "u")])
                            }
@@ -624,23 +665,23 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichCov <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichCov
-                )
+            )
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             whichGss <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichGss
-                )
+            )
 
             whichUps <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichUps
-                )
+            )
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
@@ -655,11 +696,11 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
             trans4PL[which(whichCov %in% whichGss)] <- transGuss
             trans4PL[which(whichCov %in% whichUps)] <- transUpas
 
-#            itemCov <- msm::deltamethod(g = trans3PL,
+            #            itemCov <- msm::deltamethod(g = trans3PL,
             itemCov <- deltamethod(g = lapply(trans4PL, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov,
-                                        ses = FALSE)
+                                   mean = as.numeric(t(itemPars)),
+                                   cov = itemCov,
+                                   ses = FALSE)
 
         } else if (class(mod) == "MultipleGroupClass") {
             itemCov <- list()
@@ -692,27 +733,27 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             whichGss <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichGss
-                )
+            )
 
             whichUps <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichUps
-                )
+            )
 
             pickFocal <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
-                )
+            )
 
             pickReferece <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
-                )
+            )
 
             itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
             itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
@@ -729,16 +770,16 @@ Extract4PLMirt <- function (mod, focal = NULL, reference = NULL) {
             trans4PL[which(whichCov %in% whichUps)] <- transUpas
 
 
-#            itemCov[["focal"]] <- msm::deltamethod(g = trans4PL,
+            #            itemCov[["focal"]] <- msm::deltamethod(g = trans4PL,
             itemCov[["focal"]] <- deltamethod(g = lapply(trans4PL, as.formula),
-                                        mean = as.numeric(t(itemPars[["focal"]])),
-                                        cov = itemCov[["focal"]],
-                                        ses = FALSE)
+                                              mean = as.numeric(t(itemPars[["focal"]])),
+                                              cov = itemCov[["focal"]],
+                                              ses = FALSE)
 
             itemCov[["reference"]] <- deltamethod(g = lapply(trans4PL, as.formula),
-                                        mean = as.numeric(t(itemPars[["reference"]])),
-                                        cov = itemCov[["reference"]],
-                                        ses = FALSE)
+                                                  mean = as.numeric(t(itemPars[["reference"]])),
+                                                  cov = itemCov[["reference"]],
+                                                  ses = FALSE)
 
 
         }
@@ -792,8 +833,8 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
             mirt::coef(mod,
-                 IRTpars = TRUE,
-                 simplify = TRUE)[["items"]][whichItems, ])
+                       IRTpars = TRUE,
+                       simplify = TRUE)[["items"]][whichItems, ])
         whichCols <- grep(pattern = "^(a|b)",
                           x = colnames(itemPars))
         itemPars <- itemPars[, whichCols]
@@ -810,8 +851,8 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
         }
 
         itemPars <- lapply(mirt::coef(mod,
-                                IRTpars = TRUE,
-                                simplify = TRUE),
+                                      IRTpars = TRUE,
+                                      simplify = TRUE),
                            function (x) {
                                as.matrix(x[["items"]][whichItems, ])
                            }
@@ -847,15 +888,15 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichCov <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichCov
-                )
+            )
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
@@ -867,11 +908,11 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
             transGRM[which(whichCov %in% whichDis)] <- transDisc
             transGRM[which(whichCov %in% whichDif)] <- transDiff
 
-#            itemCov <- msm::deltamethod(g = transGRM,
+            #            itemCov <- msm::deltamethod(g = transGRM,
             itemCov <- deltamethod(g = lapply(transGRM, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov,
-                                        ses = FALSE)
+                                   mean = as.numeric(t(itemPars)),
+                                   cov = itemCov,
+                                   ses = FALSE)
 
         } else if (class(mod) == "MultipleGroupClass") {
             itemCov <- list()
@@ -904,19 +945,19 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             pickFocal <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
-                )
+            )
 
             pickReferece <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
-                )
+            )
 
             itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
             itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
@@ -931,16 +972,16 @@ ExtractGRMMirt <- function (mod, focal = NULL, reference = NULL) {
             transGRM[which(whichCov %in% whichDis)] <- transDisc
             transGRM[which(whichCov %in% whichDif)] <- transDiff
 
-#            itemCov[["focal"]] <- msm::deltamethod(g = transGRM,
+            #            itemCov[["focal"]] <- msm::deltamethod(g = transGRM,
             itemCov[["focal"]] <- deltamethod(g = lapply(transGRM, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov[["focal"]],
-                                        ses = FALSE)
+                                              mean = as.numeric(t(itemPars)),
+                                              cov = itemCov[["focal"]],
+                                              ses = FALSE)
 
             itemCov[["reference"]] <- deltamethod(g = lapply(transGRM, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov[["reference"]],
-                                        ses = FALSE)
+                                                  mean = as.numeric(t(itemPars)),
+                                                  cov = itemCov[["reference"]],
+                                                  ses = FALSE)
 
         }
     } else {
@@ -992,8 +1033,8 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
     if (class(mod) == "SingleGroupClass") {
         itemPars <- as.matrix(
             mirt::coef(mod,
-                 IRTpars = TRUE,
-                 simplify = TRUE)[["items"]][whichItems, ])
+                       IRTpars = TRUE,
+                       simplify = TRUE)[["items"]][whichItems, ])
         whichCols <- grep(pattern = "^(a|b)",
                           x = colnames(itemPars))
         itemPars <- itemPars[, whichCols]
@@ -1010,8 +1051,8 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
         }
 
         itemPars <- lapply(mirt::coef(mod,
-                                IRTpars = TRUE,
-                                simplify = TRUE),
+                                      IRTpars = TRUE,
+                                      simplify = TRUE),
                            function (x) {
                                as.matrix(x[["items"]][whichItems, ])
                            }
@@ -1047,15 +1088,15 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichCov <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichCov
-                )
+            )
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             itemCov <- vcov(mod)[whichCov, whichCov]
 
@@ -1067,11 +1108,11 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
             transGPCM[which(whichCov %in% whichDis)] <- transDisc
             transGPCM[which(whichCov %in% whichDif)] <- transDiff
 
-#            itemCov <- msm::deltamethod(g = transGPCM,
+            #            itemCov <- msm::deltamethod(g = transGPCM,
             itemCov <- deltamethod(g = lapply(transGPCM, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov,
-                                        ses = FALSE)
+                                   mean = as.numeric(t(itemPars)),
+                                   cov = itemCov,
+                                   ses = FALSE)
 
         } else if (class(mod) == "MultipleGroupClass") {
             itemCov <- list()
@@ -1104,19 +1145,19 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 
             whichDis <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDis
-                )
+            )
 
             whichDif <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% whichDif
-                )
+            )
 
             pickFocal <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickFocal
-                )
+            )
 
             pickReferece <- which(as.numeric(
                 gsub(pattern = "^.+\\.", replacement = "", x = namesVcov)) %in% pickReferece
-                )
+            )
 
             itemCov[["focal"]]     <- vcovMod[pickFocal, pickFocal]
             itemCov[["reference"]] <- vcovMod[pickReferece, pickReferece]
@@ -1131,16 +1172,16 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
             transGPCM[which(whichCov %in% whichDis)] <- transDisc
             transGPCM[which(whichCov %in% whichDif)] <- transDiff
 
-#            itemCov[["focal"]] <- msm::deltamethod(g = transGPCM,
+            #            itemCov[["focal"]] <- msm::deltamethod(g = transGPCM,
             itemCov[["focal"]] <- deltamethod(g = lapply(transGPCM, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov[["focal"]],
-                                        ses = FALSE)
+                                              mean = as.numeric(t(itemPars)),
+                                              cov = itemCov[["focal"]],
+                                              ses = FALSE)
 
             itemCov[["reference"]] <- deltamethod(g = lapply(transGPCM, as.formula),
-                                        mean = as.numeric(t(itemPars)),
-                                        cov = itemCov[["reference"]],
-                                        ses = FALSE)
+                                                  mean = as.numeric(t(itemPars)),
+                                                  cov = itemCov[["reference"]],
+                                                  ses = FALSE)
 
         }
     } else {
@@ -1174,11 +1215,10 @@ ExtractGPCMMirt <- function (mod, focal = NULL, reference = NULL) {
 #'
 #' @return
 #'
-#' @export
-#'
 #' @importFrom msm deltamethod
 #' @importFrom stats as.formula
 #'
+#' @export
 ExtractMirtPars <- function (mod, focal = NULL, reference = NULL) {
 
     modItemTypes <- unique(mod@Model[["itemtype"]])
@@ -1188,22 +1228,17 @@ ExtractMirtPars <- function (mod, focal = NULL, reference = NULL) {
     for (iiType in modItemTypes) {
 
         ExtractPars <- switch(iiType,
-                            "Rasch"  = ExtractRaschMirt,
-                            "2PL"    = Extract2PLMirt,
-                            "3PL"    = Extract3PLMirt,
-                            "4PL"    = Extract4PLMirt,
-                            "graded" = ExtractGRMMirt,
-                            "gpcm"   = ExtractGPCMMirt,
-                            warning(paste("irtModel ", iiType, " not known or not implemented"))
+                              "Rasch"  = ExtractRaschMirt,
+                              "2PL"    = Extract2PLMirt,
+                              "3PL"    = Extract3PLMirt,
+                              "4PL"    = Extract4PLMirt,
+                              "graded" = ExtractGRMMirt,
+                              "gpcm"   = ExtractGPCMMirt,
+                              warning(paste("irtModel ", iiType, " not known or not implemented"))
         )
 
         mirtParameters[[iiType]] <- ExtractPars(mod = mod, focal = focal, reference = reference)
-   }
+    }
 
     return(mirtParameters)
 }
-
-
-
-
-

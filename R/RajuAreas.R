@@ -36,8 +36,6 @@
 #'
 #' @return uam A numeric matrix with the Unsigned Area Measure values for all the item parameter in each set of itemParameterList
 #'
-#' @export
-#'
 #' @examples
 #'
 #' data(dichotomousItemParameters)
@@ -63,6 +61,7 @@
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 UnsignedArea <- function (itemParameters, irtModel = "2pl", subdivisions = 5000, logistic = TRUE) {
 
   PointUnsignedDifference <- function (x, itemParameters, irtModel, logistic, ...) {
@@ -88,10 +87,10 @@ UnsignedArea <- function (itemParameters, irtModel = "2pl", subdivisions = 5000,
     }
 
     discriminationFactor <- 2 * (referenceDiscrimination - focalDiscrimination) /
-                            (kD * referenceDiscrimination * focalDiscrimination)
+      (kD * referenceDiscrimination * focalDiscrimination)
     difficultyDifference <- referenceDifficulty - focalDifficulty
     discriminationDifficultyFactor <- (kD * focalDiscrimination * referenceDiscrimination * difficultyDifference) /
-                                      (referenceDiscrimination - focalDiscrimination)
+      (referenceDiscrimination - focalDiscrimination)
     out <- (1 - commonGuessing) * abs(discriminationFactor * log(1 + exp(discriminationDifficultyFactor)) - difficultyDifference)
     return(out)
   }
@@ -175,8 +174,6 @@ UnsignedArea <- function (itemParameters, irtModel = "2pl", subdivisions = 5000,
 #'
 #' @return sam A numeric matrix with the Signed Area Measure values for all the item parameter in each set of itemParameterList
 #'
-#' @export
-#'
 #' @examples
 #'
 #' data(dichotomousItemParameters)
@@ -202,6 +199,7 @@ UnsignedArea <- function (itemParameters, irtModel = "2pl", subdivisions = 5000,
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 SignedArea <- function (itemParameters, irtModel = "2pl", subdivisions = 5000, logistic = TRUE) {
 
   PointSignedDifference <- function (x, itemParameters, irtModel, logistic, ...) {
@@ -222,21 +220,21 @@ SignedArea <- function (itemParameters, irtModel = "2pl", subdivisions = 5000, l
   if (irtModel %in% c("1pl", "2pl", "3pl")) {
     if (irtModel == "1pl") {
       sam <- SignedAreaDichotomous(referenceDifficulty = itemParameters[["reference"]],
-                                              focalDifficulty = itemParameters[["focal"]],
-                                              commonGuessing = 0)
+                                   focalDifficulty = itemParameters[["focal"]],
+                                   commonGuessing = 0)
     }
     if (irtModel == "2pl") {
-          sam <- SignedAreaDichotomous(focalDifficulty = itemParameters[["focal"]][, 2],
-                                                      referenceDifficulty = itemParameters[["reference"]][, 2],
-                                                      commonGuessing = 0)
+      sam <- SignedAreaDichotomous(focalDifficulty = itemParameters[["focal"]][, 2],
+                                   referenceDifficulty = itemParameters[["reference"]][, 2],
+                                   commonGuessing = 0)
     }
     if (irtModel == "3pl") {
       for (ii in 1:nItems) {
         isEqualGuessing        <- itemParameters[["reference"]][ii, 3] == itemParameters[["focal"]][ii, 3]
         if (isEqualGuessing) {
-            sam[ii] <- SignedAreaDichotomous(focalDifficulty = itemParameters[["focal"]][ii, 2],
-                                                        referenceDifficulty = itemParameters[["reference"]][ii, 2],
-                                                        commonGuessing = itemParameters[["focal"]][ii, 3])
+          sam[ii] <- SignedAreaDichotomous(focalDifficulty = itemParameters[["focal"]][ii, 2],
+                                           referenceDifficulty = itemParameters[["reference"]][ii, 2],
+                                           commonGuessing = itemParameters[["focal"]][ii, 3])
         }
       }
     }

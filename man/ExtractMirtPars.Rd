@@ -17,8 +17,6 @@ ExtractMirtPars(mod, focal = NULL, reference = NULL)
 If mod contains any itemtype == "gpcm", a list with the item parameters and the estimate covariances (if available).
 If mod is SingleGroupClass, the list contains the item parameters as a matrix and the covariances as a list.
 If mod is MultipleGroupClass, the list contains the item parameters and covariances for the focal and reference groups only.
-
-
 }
 \description{
 Extracts the item parameters from a unidimensional mirt model

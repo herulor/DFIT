@@ -10,9 +10,13 @@ ExtractRaschMirt(mod, focal = NULL, reference = NULL)
 \arguments{
 \item{mod}{A mirt object containing the fit of unidimensional model.}
 
-\item{focal}{Character. Required if mod is MultipleGroupClass, focal should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.}
+\item{focal}{Character. See description of 'reference'.}
 
-\item{reference}{Character. Required if mod is MultipleGroupClass, reference should coincide with the label for the focal group. If mod is SingleGroupClass, it is ignored.}
+\item{reference}{Character. If mod is of class MultipleGroupClass and parameters from precisely two groups are to be extracted,
+'reference' should coincide with the label for the reference group.
+If mod is of class MultipleGroupClass and parameers from all groups are to be extracted,
+'reference' should be NULL.
+If mod is SingleGroupClass, it is ignored.}
 }
 \value{
 If mod contains any itemtype == "Rasch", a list with the item parameters and the estimate covariances (if available).
@@ -28,5 +32,26 @@ library(mirt)
 data <- expand.table(LSAT7)
 (mod1 <- mirt(data, model = 1, itemtype = "Rasch", SE = TRUE))
 (DFIT:::ExtractRaschMirt(mod1))
+
+# From mirt's multipleGroup
+set.seed(12345)
+a <- matrix(abs(rnorm(15, 1, .3)), ncol = 1)
+d <- matrix(rnorm(15, 0, .7), ncol = 1)
+itemtype <- rep('2PL', nrow(a))
+N <- 1000
+dataset1 <- simdata(a, d, N, itemtype)
+dataset2 <- simdata(a, d, N, itemtype,
+                    mu = .1, sigma = matrix(1.5))
+dataset3 <- simdata(a, d, N, itemtype,
+                    mu = -.1, sigma = matrix(1.5))
+dataset4 <- simdata(a, d, N, itemtype,
+                    mu = 0, sigma = matrix(1.5))
+
+dat <- rbind(dataset1, dataset2, dataset3, dataset4)
+group <- rep(paste0('D', 1:4), each = N)
+
+(mod2 <- multipleGroup(dat, 1, itemtype = 'Rasch', group = group, SE = TRUE))
+(DFIT:::ExtractRaschMirt(mod2, focal = "D1", reference = "D4"))
+(DFIT:::ExtractRaschMirt(mod2))
 
 }

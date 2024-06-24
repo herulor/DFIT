@@ -39,8 +39,6 @@
 #'
 #' @return ncdif Numeric vector with the NCDIF index value for each item.
 #'
-#' @export Ncdif
-#'
 #' @importFrom stats integrate
 #'
 #' @examples
@@ -68,6 +66,7 @@
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 Ncdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
                    subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
 
@@ -127,8 +126,6 @@ Ncdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, foca
 #'
 #' @return cdif Numeric vector with the CDIF index value for each item.
 #'
-#' @export
-#'
 #' @examples
 #'
 #' # # Not run
@@ -156,6 +153,7 @@ Ncdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, foca
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
                   subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
 
@@ -236,8 +234,6 @@ Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focal
 #'
 #' @return dtf Numeric vector with the CDIF index value for each item.
 #'
-#' @export
-#'
 #' @examples
 #'
 #' # # Not run
@@ -266,6 +262,7 @@ Cdif <- function (itemParameters, irtModel = "2pl", focalAbilities = NULL, focal
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 Dtf <- function (cdif = NULL, itemParameters = NULL, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
                  subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
 
@@ -633,8 +630,8 @@ Calculate4plProb <- function (thetaValue, itemParameters, logistic = TRUE) {
 
   for (ii in seq(nrow(probabilities))) {
     probabilities[ii, ] <-  itemParameters[, 3] + ((itemParameters[, 4] - itemParameters[, 3]) * plogis(q = thetaValue[ii],
-                                                                                      location = as.numeric(t(itemParameters[, 2])),
-                                                                                      scale = 1 / (kD * itemParameters[, 1])))
+                                                                                                        location = as.numeric(t(itemParameters[, 2])),
+                                                                                                        scale = 1 / (kD * itemParameters[, 1])))
   }
 
   return(probabilities)
@@ -754,7 +751,7 @@ CalculatePcmExp <- function (thetaValue, itemParameters, logistic = TRUE) {
 
   for (ii in seq(nrow(probabilities))) {
     probabilities[ii, ] <- kD * rep(itemParameters[, 1], each = ncol(itemParameters) - 1) *
-                           (thetaValue[ii] - as.numeric(t(itemParameters[, -1])))
+      (thetaValue[ii] - as.numeric(t(itemParameters[, -1])))
   }
 
   expectedScore <- tapply(probabilities, itemIndices,
@@ -762,7 +759,7 @@ CalculatePcmExp <- function (thetaValue, itemParameters, logistic = TRUE) {
                             apply(matrix(y, nrow(probabilities)), 1,
                                   function (x)
                                     sum(1:(length(x) + 1) * exp(c(0, cumsum(x))) / sum(exp(c(0, cumsum(x)))))
-                                  ))
+                            ))
 
   expectedScore <- as.matrix(as.data.frame.list(expectedScore))
 
@@ -815,8 +812,6 @@ if (getRversion() >= "2.15.1") utils::globalVariables(c("icc", "expected"))
 #'
 #' @importFrom stats density
 #'
-#' @export
-#'
 #' @examples
 #'
 #' data(dichotomousItemParameters)
@@ -844,6 +839,7 @@ if (getRversion() >= "2.15.1") utils::globalVariables(c("icc", "expected"))
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 PlotNcdif <- function (iiItem, itemParameters, irtModel = "2pl", logistic = TRUE,
 
                        plotDensity = FALSE, focalAbilities = NULL, focalDistribution = "norm",
@@ -852,7 +848,7 @@ PlotNcdif <- function (iiItem, itemParameters, irtModel = "2pl", logistic = TRUE
                        main = "", xlab = "Ability", ylab = "Probability",
                        iccText = "Group ICCs", focalIccText = "Focal group ICC",
                        referenceIccText = "Reference group ICC", focalDensityText = "Focal group density") {
-#  require(ggplot2)
+  #  require(ggplot2)
 
   # # Auxiliary functions
   CalculateProb <- switch(irtModel,

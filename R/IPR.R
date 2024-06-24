@@ -33,8 +33,6 @@
 #'
 #' @return itemParameters A list with item parameters for focal and reference groups
 #'
-#' @export
-#'
 #' @importFrom simex diag.block
 #' @importFrom mvtnorm rmvnorm
 #'
@@ -73,6 +71,7 @@
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 Ipr <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 
   #  require(simex)
@@ -163,8 +162,6 @@ Ipr <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 #'
 #' @references Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
 #'
-#' @export
-#'
 #' @examples
 #' # # Not run
 #' # #
@@ -200,6 +197,7 @@ Ipr <- function (itemParameters, itemCovariances, nReplicates = 5000) {
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 IprNcdif <- function (itemParameterList, irtModel = "2pl", focalAbilities = NULL, focalDistribution = "norm",
                       subdivisions = 5000, logistic = TRUE, focalDistrExtra = list(mean = 0, sd = 1)) {
 
@@ -240,8 +238,6 @@ IprNcdif <- function (itemParameterList, irtModel = "2pl", focalAbilities = NULL
 #' @references Raju, N. (1988). The area between two item characteristic cureves. Psychometricka, 53(4), 495--502. doi:10.1007/bf02294403
 #' @references Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
 #'
-#' @export
-#'
 #' @examples
 #' # # Not run
 #' # #
@@ -277,6 +273,7 @@ IprNcdif <- function (itemParameterList, irtModel = "2pl", focalAbilities = NULL
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 IprUam <- function (itemParameterList, irtModel = "2pl", subdivisions = 5000, logistic = TRUE) {
 
   uam <- sapply(itemParameterList, function (x) UnsignedArea(x, irtModel = irtModel, subdivisions = subdivisions,
@@ -313,8 +310,6 @@ IprUam <- function (itemParameterList, irtModel = "2pl", subdivisions = 5000, lo
 #' @references Raju, N. (1988). The area between two item characteristic cureves. Psychometricka, 53(4), 495--502. doi:10.1007/bf02294403
 #' @references Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
 #'
-#' @export
-#'
 #' @examples
 #' # # Not run
 #' # #
@@ -350,6 +345,7 @@ IprUam <- function (itemParameterList, irtModel = "2pl", subdivisions = 5000, lo
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 IprSam <- function (itemParameterList, irtModel = "2pl", subdivisions = 5000, logistic = TRUE) {
 
   sam <- sapply(itemParameterList, function (x) SignedArea(x, irtModel = irtModel, subdivisions = subdivisions,
@@ -393,8 +389,6 @@ IprSam <- function (itemParameterList, irtModel = "2pl", subdivisions = 5000, lo
 #' @references Oshima, T., Raju, N. & Nanda, A. (2006). A new method for assessing the statistical significance in the Differential Functioning of Items and Tests (DFIT) framework. Journal of educational measurement, 43(1), 1--17. doi:10.1111/j.1745-3984.2006.00001.x
 #' @references Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
 #'
-#' @export
-#'
 #' @examples
 #' # # Not run
 #' # #
@@ -430,6 +424,7 @@ IprSam <- function (itemParameterList, irtModel = "2pl", subdivisions = 5000, lo
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 IprMh <- function (itemParameterList, irtModel = "2pl", focalDistribution = "norm",
                    focalDistrExtra = list(mean = 0, sd = 1), referenceDistribution = "norm",
                    referenceDistrExtra = list(mean = 0, sd = 1), groupRatio = 1,
@@ -500,8 +495,6 @@ IprMh <- function (itemParameterList, irtModel = "2pl", focalDistribution = "nor
 #' @references Raju, N. (1988). The area between two item characteristic cureves. Psychometricka, 53(4), 495--502. doi:10.1007/bf02294403
 #' @references Roussos, L., Schnipke, D. & Pashley, P. (1999). A generalized formula for the Mantel-Haenszel Differential Item Functioning parameter. Journal of educational and behavioral statistics, 24(3), 293--322. doi:10.3102/10769986024003293
 #'
-#' @export
-#'
 #' @importFrom stats quantile
 #'
 #' @examples
@@ -539,6 +532,7 @@ IprMh <- function (itemParameterList, irtModel = "2pl", focalDistribution = "nor
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
 #'
+#' @export
 CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
                        itemParameterList = NULL, irtModel = "2pl", focalAbilities = NULL,
                        focalDistribution = "norm", focalDistrExtra = list(mean = 0, sd = 1),
@@ -648,8 +642,6 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
 #'
 #' @return itemParameterList     A list where each element is a list containing "focal" and "reference" item Parameters where guessing parameters outside the [0, 1] interval are changed by 0 and 1.
 #'
-#' @export
-#'
 #' @examples
 #' # # Not run
 #' # #
@@ -683,6 +675,8 @@ CutoffIpr <- function (iprStatistics = NULL, quantiles, statistic = "ncdif",
 #' # # threePlIpr <- Bound3PlIpr(threePlIpr)
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#'
+#' @export
 Bound3PlIpr <- function (itemParameterList) {
 
   Change2Zero <- function (x) {
@@ -731,8 +725,6 @@ Bound3PlIpr <- function (itemParameterList) {
 #'
 #' @return itemParameterList     A list where each element is a list containing "focal" and "reference" item Parameters where guessing parameters outside the [0, 1] interval are changed by 0 and 1.
 #'
-#' @export
-#'
 #' @examples
 #' # # Not run
 #' # #
@@ -766,6 +758,8 @@ Bound3PlIpr <- function (itemParameterList) {
 #' # # threePlIpr <- Bound3PlIpr(threePlIpr)
 #'
 #' @author Victor H. Cervantes <vhcervantesb at unal.edu.co>
+#'
+#' @export
 Bound4PlIpr <- function (itemParameterList) {
 
   Change2Zero <- function (x) {

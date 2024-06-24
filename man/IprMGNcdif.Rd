@@ -24,6 +24,10 @@ IprMGNcdif(
 
 \item{focalDistribution}{A string stating the distribution name to be used for integrating. Only used if focalAbilities is NULL.}
 
+\item{relSizes}{If not NULL, a numeric vector with named components containing the relative sizes of the groups.
+Used to obtain the weighted average of the pairwise NCDIF statistics.
+If NULL and focalAbilities is NULL, defaults to 1/length(focalDistribution)}
+
 \item{subdivisions}{A numeric value indicating the number of subdivisions for numerical integration. Only used if focalAbilities is NULL.}
 
 \item{logistic}{A logical value stating if the IRT model will use the logistic or the normal metric. Defaults to using the logistic metric by fixing the D constant to 1. If FALSE the constant is set to 1.702 so that the normal metric is used.}
@@ -95,7 +99,9 @@ itemParameters <- list(base = baseParameters,
 
 itemCovariances <- lapply(itemParameters, AseIrt, irtModel = "3pl", sampleSize = 5000)
 
-mgIpr <- IprMG(itemParameters = itemParameters, itemCovariances = itemCovariances, nReplicates = 100)
+mgIpr <- IprMG(itemParameters = itemParameters,
+               itemCovariances = itemCovariances,
+               nReplicates = 100)
 mgIpr <- Bound3PlIpr(mgIpr)
 
 mgncdifIpr <- IprMGNcdif(itemParameterList = mgIpr, irtModel = "3pl")
